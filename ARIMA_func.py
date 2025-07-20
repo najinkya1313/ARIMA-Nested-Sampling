@@ -8,8 +8,7 @@ import jax.numpy as jnp
 def ARIMA_custom(data,order:tuple,sigma:int,phi:tuple,theta:tuple):
  "A non-seasonal ARIMA function that returns the forecasted values y_t for a given time-series data"   
  
- noise_key = jax.random.PRNGKey(18)
- epsilon_t = sigma * jax.random.normal(noise_key, shape=data.shape) #Error/Shock at time t
+ 
  p,d,q = order[0],order[1],order[2]
  
  ##Converting inputs into jax numpy arrays
@@ -62,5 +61,7 @@ def ARIMA_custom(data,order:tuple,sigma:int,phi:tuple,theta:tuple):
       first_val = jnp.diff(initial_values, n=i-1)[0]
       integrated = jnp.concatenate(([first_val], jnp.cumsum(integrated) + first_val))
  
+ noise_key = jax.random.PRNGKey(18)
+ epsilon_t = sigma * jax.random.normal(noise_key, shape=integrated.shape) #Error/Shock at time t
  y_t_out = integrated + epsilon_t  
  return y_t_out
