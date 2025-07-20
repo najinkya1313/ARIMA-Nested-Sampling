@@ -1,3 +1,9 @@
+import numpy as np
+import jax
+import jax.numpy as jnp
+
+
+
 ##Defining an ARIMA function from scratch
 def ARIMA_custom(data,order:tuple,sigma:int,phi:tuple,theta:tuple):
  "A non-seasonal ARIMA function that returns the forecasted values y_t for a given time-series data"   
