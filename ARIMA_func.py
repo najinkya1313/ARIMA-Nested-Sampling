@@ -1,32 +1,33 @@
 import numpy as np
 import jax
 import jax.numpy as jnp
-
-
-
 ##Defining an ARIMA function from scratch
-def ARIMA_custom(data,order:tuple,sigma:int,phi:tuple,theta:tuple):
+#(Removing sigma parameter for the purpose of Nested Sampling)
+def ARIMA_custom(data,order:tuple,sigma,phi:tuple,theta:tuple):
+ 
  "A non-seasonal ARIMA function that returns the forecasted values y_t for a given time-series data"   
  
- 
+
  p,d,q = order[0],order[1],order[2]
  
  ##Converting inputs into jax numpy arrays
  phi = jnp.atleast_1d(phi)
  theta = jnp.atleast_1d(theta)
  data = jnp.array(data)
+
+ ## Differencing for stationarity
+ diff_data = jnp.diff(data,d)
  
  ##Defining the constant intercept k
  phi_sum = jnp.sum(phi)
  k = (1-phi_sum)*jnp.mean(diff_data)
  
- ## Differencing for stationarity
- diff_data = jnp.diff(data,d)
+ 
  ##Padding with zeroes for first forecast
  if p>q:
-   diff_data = jnp.concatenate((np.zeros(p),data)) 
+   diff_data = jnp.concatenate((jnp.array(p*[jnp.mean(data)]),data)) 
  else:
-   diff_data = jnp.concatenate((np.zeros(q),data))
+   diff_data = jnp.concatenate((jnp.array(p*[jnp.mean(data)]),data))
  
  ## Autoregression and MA part:
  y_t_diffed = q*[0]
@@ -61,7 +62,9 @@ def ARIMA_custom(data,order:tuple,sigma:int,phi:tuple,theta:tuple):
       first_val = jnp.diff(initial_values, n=i-1)[0]
       integrated = jnp.concatenate(([first_val], jnp.cumsum(integrated) + first_val))
  
- noise_key = jax.random.PRNGKey(18)
- epsilon_t = sigma * jax.random.normal(noise_key, shape=integrated.shape) #Error/Shock at time t
- y_t_out = integrated + epsilon_t  
- return y_t_out
+ return jax.lax.cond(
+    sigma == 0,
+    lambda _: integrated,
+    lambda _: integrated + sigma * jax.random.normal(jax.random.PRNGKey(27), shape=integrated.shape),
+    operand=None
+   )
