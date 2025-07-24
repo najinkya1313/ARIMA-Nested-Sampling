@@ -9,7 +9,7 @@ def ARIMA_fast(data, order, sigma, phi, theta, *, key=jax.random.PRNGKey(0)):
     Vectorised non-seasonal ARIMA(p,d,q) for JAX/XLA.
     """
     
-    sigma = float(sigma)
+   
     p, d, q = order
     x_dtype = jnp.asarray(data).dtype            # keep original dtype
     data    = jnp.asarray(data, dtype=jnp.float32)  # or x_dtype
