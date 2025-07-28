@@ -65,14 +65,36 @@ def ARIMA_Nested_Sampler(data,order,lklhood,prior_bounds,num_live,num_delete):
      #Print results:
      print(f"Nested sampling runtime: {ns_time:.2f} seconds")
      print(f"Log Evidence: {posterior_samples.logZ():.2f} ± {posterior_samples.logZ(100).std():.2f}")
+     print(type(posterior_samples))
     
     
      # Create posterior corner plot with true values marked
      kinds = {'lower': 'kde_2d', 'diagonal': 'hist_1d', 'upper': 'scatter_2d'}
      axes = posterior_samples.plot_2d(columns, kinds=kinds, label='Posterior')
-    
+     
      plt.suptitle("Line Fitting: Posterior Distributions")
+     return posterior_samples
 
+
+    
+
+
+   
+    
+
+
+
+        
+            
+            
+
+
+
+
+        
+    
+    
+    
 
     
 
