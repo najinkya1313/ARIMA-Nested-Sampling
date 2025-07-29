@@ -92,13 +92,15 @@ class Nested_Sampler_ARIMA:
     return posterior_samples
      #Print results:
  def summary(self,posterior_samples):
+    print("NESTED SAMPLING SUMMARY RESULTS :")
+    print("---------------------------------------------------")
     print(f"Nested sampling runtime: {self.ns_time:.2f} seconds")
     posterior_means = []
     for key in self.prior_bounds.keys():
      means = posterior_samples[key].mean()
      print(f"Posteior mean for {key}:{means}")
      posterior_means.append(means)
-
+     print("---------------------------------------------------")
     
     print(f"Log Evidence: {posterior_samples.logZ():.2f} ± {posterior_samples.logZ(100).std():.2f}")
     Z = posterior_samples.logZ()
