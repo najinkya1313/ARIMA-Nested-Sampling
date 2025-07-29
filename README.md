@@ -1,7 +1,20 @@
-###A Python project to implement the Nested Sampling Algorithm for ARIMA Model selection
+# 🌀 Nested Sampling for ARIMA Model Selection
 
- To Do
-1. Include a collection of standard ARIMA models as helper functions by creating a separate `ARIMA_helper_class`, with built-in `data` and `order` as self parameters.  
-2. Extend the `NestedSampler` class with:
-   - A method to extract the forecasted time series using the obtained parameters.
-   - Functionality to visualize the forecasted series alongside the original data.
+**A Python project to implement the Nested Sampling Algorithm for ARIMA Model selection**
+
+---
+
+## 📌 To‑Do
+
+1. **ARIMA Helper Class**  
+   - Create a separate `ARIMA_helper_class` that includes a collection of standard ARIMA models.
+   - The class should have built-in `data` and `order` stored as `self` parameters.
+
+2. **Nested Sampler Enhancements**  
+   - Add a method to the `NestedSampler` class to extract the **forecasted time series** using the parameters obtained.  
+   - Add functionality to **visualize the forecasted series** alongside the original data.
+
+---
+
+
+
