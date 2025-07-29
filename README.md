@@ -1,4 +1,4 @@
-###A Python project to implement the Nested Sampling Algorithm for ARIMA Model selection**
+###A Python project to implement the Nested Sampling Algorithm for ARIMA Model selection
 
 ## To Do
 1. Include a collection of standard ARIMA models as helper functions by creating a separate `ARIMA_helper_class`, with built-in `data` and `order` as self parameters.  
