@@ -48,7 +48,7 @@ class ARIMA_Nested_Sampler:
     num_dims = len(self.prior_bounds)
     num_inner_steps = num_dims * 5
     p,d,q = self.order
-    if num_dims!=(p+q):
+    if num_dims!=(p+q+1):
         raise ValueError("Number of parameters in prior_bounds inconsistent with ARIMA order.")
     
     rng_key = jax.random.PRNGKey(self.seed)
