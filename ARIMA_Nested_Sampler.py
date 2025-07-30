@@ -114,6 +114,10 @@ class ARIMA_Nested_Sampler:
     plt.suptitle("Posterior Distributions")
     
     return posterior_means,Z
+ 
+   
+
+
   
 
 
