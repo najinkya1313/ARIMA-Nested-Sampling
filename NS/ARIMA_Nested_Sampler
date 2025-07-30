@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import jax
 
-class Nested_Sampler_ARIMA:
+class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
  """
