@@ -93,9 +93,9 @@ class ARIMA_Nested_Sampler:
      #Print results:
  def summary(self,posterior_samples):
     print("||NESTED SAMPLING SUMMARY RESULTS||")
-    print("---------------------------------------------------")
+    print("----------------------------------------------------")
     print(f"Nested sampling runtime: {self.ns_time:.2f} seconds")
-    print("---------------------------------------------------")
+    print("----------------------------------------------------")
     posterior_means = []
     for key in self.prior_bounds.keys():
      means = posterior_samples[key].mean()
