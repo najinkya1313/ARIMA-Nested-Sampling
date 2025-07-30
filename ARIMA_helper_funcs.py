@@ -1,3 +1,5 @@
+from ARIMA_fast import ARIMA_fast
+
 class ARIMA_log_likelihood:
     """
     A helper class to give loglikelihood functions for some standard ARIMA models.
