@@ -47,8 +47,8 @@ class ARIMA_Nested_Sampler:
     print(f"Running Nested Sampling for fitting ARIMA {self.order} model...")
     num_dims = len(self.prior_bounds)
     num_inner_steps = num_dims * 5
-    order_check = np.sum(self.order)
-    if num_dims!=(order_check+1):
+    p,d,q = order
+    if num_dims!=(p+q):
         raise ValueError("Number of parameters in prior_bounds inconsistent with ARIMA order.")
     
     rng_key = jax.random.PRNGKey(self.seed)
