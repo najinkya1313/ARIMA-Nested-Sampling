@@ -15,7 +15,7 @@ class ARIMA_Nested_Sampler:
  """
  def __init__(self,data,order,log_likelihood,prior_bounds,num_live,num_delete,seed):
   """
-  Initializes the Nested Sampler
+  Initializes and runs the Nested Sampling.
   Args:
      data (array or list) : The time_series data to be fitted.
      order (tuple) : (p,d,q) order of the ARIMA model.
@@ -36,127 +36,106 @@ class ARIMA_Nested_Sampler:
   self.seed = seed
    
 
- def run(self):
-    """
-    Runs the Nested Sampling procedure for ARIMA Models.
-    Args:
-      num_live : number of live points to draw from the prior space.
-      num_delete : number of points to delete at each iteration.
-      seed : Seed for random number generator
-    """
-    print(f"Running Nested Sampling for fitting ARIMA {self.order} model...")
-    num_dims = len(self.prior_bounds)
-    num_inner_steps = num_dims * 5
-    p,d,q = self.order
-    if num_dims!=(p+q+1):
-        raise ValueError("Number of parameters in prior_bounds inconsistent with ARIMA order.")
+ 
+  """
+  Runs the Nested Sampling procedure for ARIMA Models.
+  Args:
+    num_live : number of live points to draw from the prior space.
+    num_delete : number of points to delete at each iteration.
+    seed : Seed for random number generator
+  """
     
-    rng_key = jax.random.PRNGKey(self.seed)
-    rng_key,prior_key = jax.random.split(rng_key)
-    particles,logprior_fn = blackjax.ns.utils.uniform_prior(prior_key,self.num_live,self.prior_bounds)
-    ##Nested Sampler
-    nested_sampler = blackjax.nss(logprior_fn=logprior_fn,loglikelihood_fn = self.log_likelihood,num_delete=self.num_delete,num_inner_steps=num_inner_steps)
-    init_fn = jax.jit(nested_sampler.init)
-    step_fn = jax.jit(nested_sampler.step)
-    ns_start = time.time()
-    live = init_fn(particles)
-    dead = []
+  print(f"Running Nested Sampling for fitting ARIMA {self.order} model...")
+  num_dims = len(self.prior_bounds)
+  num_inner_steps = num_dims * 5
+  p,d,q = self.order
+  if num_dims!=(p+q+1):
+      raise ValueError("Number of parameters in prior_bounds inconsistent with ARIMA order.")
     
-    with tqdm.tqdm(desc="Dead points", unit=" dead points") as pbar:
-      while not live.logZ_live - live.logZ < -3:  # Convergence criterion
-        rng_key, subkey = jax.random.split(rng_key, 2)
-        live, dead_info = step_fn(subkey, live)
-        dead.append(dead_info)
-        pbar.update(self.num_delete)
+  rng_key = jax.random.PRNGKey(self.seed)
+  rng_key,prior_key = jax.random.split(rng_key)
+  particles,logprior_fn = blackjax.ns.utils.uniform_prior(prior_key,self.num_live,self.prior_bounds)
+  ##Nested Sampler
+  nested_sampler = blackjax.nss(logprior_fn=logprior_fn,loglikelihood_fn = self.log_likelihood,num_delete=self.num_delete,num_inner_steps=num_inner_steps)
+  init_fn = jax.jit(nested_sampler.init)
+  step_fn = jax.jit(nested_sampler.step)
+  ns_start = time.time()
+  live = init_fn(particles)
+  dead = []
     
-    dead = blackjax.ns.utils.finalise(live,dead)
-    ns_time = time.time() - ns_start
-    self.ns_time = ns_time
-    print(f"Finished Nested Sampling with a total runtime of : {ns_time:.2f} seconds")
+  with tqdm.tqdm(desc="Dead points", unit=" dead points") as pbar:
+    while not live.logZ_live - live.logZ < -3:  # Convergence criterion
+      rng_key, subkey = jax.random.split(rng_key, 2)
+      live, dead_info = step_fn(subkey, live)
+      dead.append(dead_info)
+      pbar.update(self.num_delete)
+    
+  dead = blackjax.ns.utils.finalise(live,dead)
+  ns_time = time.time() - ns_start
+  self.ns_time = ns_time
+  print(f"Finished Nested Sampling with a total runtime of : {ns_time:.2f} seconds")
 
  
      ##Processing results
-    columns = [i for i in self.prior_bounds.keys()]
-    self.columns = columns
+  columns = [i for i in self.prior_bounds.keys()]
+  self.columns = columns
     
-    data = jnp.vstack([dead.particles[key] for key in columns]).T
+  data = jnp.vstack([dead.particles[key] for key in columns]).T
 
-    posterior_samples = NestedSamples(
-    data,
-    logL=dead.loglikelihood,
-    logL_birth=dead.loglikelihood_birth,
-    columns=columns,
-    labels=None,
-    logzero=jnp.nan,
-    )
-    return posterior_samples
-     #Print results:
- def summary(self,posterior_samples):
+  posterior_samples = NestedSamples(
+  data,
+  logL=dead.loglikelihood,
+  logL_birth=dead.loglikelihood_birth,
+  columns=columns,
+  labels=None,
+  logzero=jnp.nan,
+  )
+  self.posterior_samples = posterior_samples
+    
+
+    
+
+#Print results:
+ def summary(self):
     print("||NESTED SAMPLING SUMMARY RESULTS||")
     print("----------------------------------------------------")
     print(f"Nested sampling runtime: {self.ns_time:.2f} seconds")
     print("----------------------------------------------------")
     posterior_means = []
     for key in self.prior_bounds.keys():
-     means = posterior_samples[key].mean()
+     means = self.posterior_samples[key].mean()
      print(f"Posteior mean for {key}:{means}")
      posterior_means.append(means)
      print("---------------------------------------------------")
     
-    print(f"Log Evidence: {posterior_samples.logZ():.2f} ± {posterior_samples.logZ(100).std():.2f}")
+    print(f"Log Evidence: {self.posterior_samples.logZ():.2f} ± {self.posterior_samples.logZ(100).std():.2f}")
     print("-------x----------------x-------------x------------")
-    Z = posterior_samples.logZ()
+    Z = self.posterior_samples.logZ()
     
     
      # Create posterior corner plot with true values marked
     kinds = {'lower': 'kde_2d', 'diagonal': 'hist_1d', 'upper': 'scatter_2d'}
-    axes = posterior_samples.plot_2d(self.columns, kinds=kinds, label='Posterior')
+    axes = self.posterior_samples.plot_2d(self.columns, kinds=kinds, label='Posterior')
     plt.suptitle("Posterior Distributions")
     
-    return posterior_means,Z
- 
-   
-
-
+    self.posterior_means = posterior_means
+    self.log_evidence = Z
+    self.log_evidence_err = self.posterior_samples.logZ(100).std()
   
-
-
+ def fit_plot(self,compare=None):
+   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-1],self.posterior_means[0:(self.order[0])],self.posterior_means[self.order[0]:-1])
+   if compare is not None:
+    if compare==True:
+      plt.plot(self.data,label='Data')
     
-
-
+    elif type(compare)!= bool:
+      raise SyntaxError(f"Invalid value {compare} for compare argument. compare should be True, False, or None")
+    
    
-    
-
-
-
-        
-            
-            
-
-
-
-
-        
-    
-    
-    
-
-    
-
-
-   
-    
-
-
-
-        
-            
-            
-
-
-
-
-        
-    
-    
+    plt.plot(y_fit,label=f"ARIMA{self.order} model fit.")
+    plt.legend()
+    plt.xlabel('Time-step')
+    plt.ylabel('Value')
+  
+   return y_fit
     
