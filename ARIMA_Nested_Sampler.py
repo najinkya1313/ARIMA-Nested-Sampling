@@ -136,6 +136,8 @@ class ARIMA_Nested_Sampler:
     plt.legend()
     plt.xlabel('Time-step')
     plt.ylabel('Value')
-  
-   return y_fit
+    plt.show()
+    self.y_fit = y_fit
+    
+   
     
