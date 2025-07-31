@@ -132,12 +132,13 @@ class ARIMA_Nested_Sampler:
       raise SyntaxError(f"Invalid value {compare} for compare argument. compare should be True, False, or None")
     
    
-    plt.plot(y_fit,label=f"ARIMA{self.order} model fit.")
+    fig = plt.plot(y_fit,label=f"ARIMA{self.order} model fit.")
     plt.legend()
     plt.xlabel('Time-step')
     plt.ylabel('Value')
     plt.show()
     self.y_fit = y_fit
+    return fig
     
    
     
