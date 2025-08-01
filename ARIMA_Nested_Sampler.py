@@ -91,7 +91,8 @@ class ARIMA_Nested_Sampler:
   logzero=jnp.nan,
   )
   self.posterior_samples = posterior_samples
-    
+  Z = self.posterior_samples.logZ()
+
 
     
 
@@ -110,7 +111,6 @@ class ARIMA_Nested_Sampler:
     
     print(f"Log Evidence: {self.posterior_samples.logZ():.2f} ± {self.posterior_samples.logZ(100).std():.2f}")
     print("-------x----------------x-------------x------------")
-    Z = self.posterior_samples.logZ()
     
     
      # Create posterior corner plot with true values marked
@@ -129,16 +129,19 @@ class ARIMA_Nested_Sampler:
       plt.plot(self.data,label='Data')
     
     elif type(compare)!= bool:
-      raise SyntaxError(f"Invalid value {compare} for compare argument. compare should be True, False, or None")
+      raise SyntaxError(f"Invalid value {compare} for compare argument. compare should be == True, False, or None")
     
    
-    fig = plt.plot(y_fit,label=f"ARIMA{self.order} model fit.")
+   
+   
+    self.y_fit = y_fit
+    plt.plot(y_fit,label=f"ARIMA{self.order} model fit.")
     plt.legend()
     plt.xlabel('Time-step')
     plt.ylabel('Value')
     plt.show()
-    self.y_fit = y_fit
-    return fig
+
+    
     
    
     
