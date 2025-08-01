@@ -92,6 +92,10 @@ class ARIMA_Nested_Sampler:
   )
   self.posterior_samples = posterior_samples
   Z = self.posterior_samples.logZ()
+  posterior_means = []
+    for key in self.prior_bounds.keys():
+     means = self.posterior_samples[key].mean()
+     posterior_means.append(means)
   self.posterior_means = posterior_means
   self.log_evidence = Z
   self.log_evidence_err = self.posterior_samples.logZ(100).std()
@@ -105,12 +109,9 @@ class ARIMA_Nested_Sampler:
     print("----------------------------------------------------")
     print(f"Nested sampling runtime: {self.ns_time:.2f} seconds")
     print("----------------------------------------------------")
-    posterior_means = []
-    for key in self.prior_bounds.keys():
-     means = self.posterior_samples[key].mean()
-     print(f"Posteior mean for {key}:{means}")
-     posterior_means.append(means)
-     print("---------------------------------------------------")
+    for index,key in enumerate(self.prior_bounds.keys()):
+     print(f"Posterior mean for {key} : {self.posterior_means[index]}")
+    print("---------------------------------------------------")
     
     print(f"Log Evidence: {self.posterior_samples.logZ():.2f} ± {self.posterior_samples.logZ(100).std():.2f}")
     print("-------x----------------x-------------x------------")
