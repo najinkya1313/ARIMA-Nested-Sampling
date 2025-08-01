@@ -93,7 +93,7 @@ class ARIMA_Nested_Sampler:
   self.posterior_samples = posterior_samples
   Z = self.posterior_samples.logZ()
   posterior_means = []
-    for key in self.prior_bounds.keys():
+  for key in self.prior_bounds.keys():
      means = self.posterior_samples[key].mean()
      posterior_means.append(means)
   self.posterior_means = posterior_means
