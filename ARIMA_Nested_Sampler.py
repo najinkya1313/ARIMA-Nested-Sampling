@@ -92,6 +92,9 @@ class ARIMA_Nested_Sampler:
   )
   self.posterior_samples = posterior_samples
   Z = self.posterior_samples.logZ()
+  self.posterior_means = posterior_means
+  self.log_evidence = Z
+  self.log_evidence_err = self.posterior_samples.logZ(100).std()
 
 
     
@@ -118,9 +121,7 @@ class ARIMA_Nested_Sampler:
     axes = self.posterior_samples.plot_2d(self.columns, kinds=kinds, label='Posterior')
     plt.suptitle("Posterior Distributions")
     
-    self.posterior_means = posterior_means
-    self.log_evidence = Z
-    self.log_evidence_err = self.posterior_samples.logZ(100).std()
+    
   
  def fit_plot(self,compare=None):
    y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-1],self.posterior_means[0:(self.order[0])],self.posterior_means[self.order[0]:-1])
