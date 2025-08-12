@@ -94,4 +94,4 @@ def normal_prior(rng_key,num_live,prior_params):
    return valid_particles
 
  particles = particles_filter(unfiltered_particles)
- return logprior_fn,particles
+ return particles,logprior_fn
