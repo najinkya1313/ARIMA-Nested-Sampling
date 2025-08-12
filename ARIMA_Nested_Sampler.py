@@ -1,6 +1,4 @@
 ##Python packages
-from ARIMA_fast import ARIMA_fast
-from norm_prior import normal_prior
 import blackjax
 import time
 import jax.numpy as jnp
@@ -9,6 +7,9 @@ import tqdm
 import matplotlib.pyplot as plt
 import numpy as np
 import jax
+from ARIMA_fast import ARIMA_fast
+from norm_prior import normal_prior
+
 
 class ARIMA_Nested_Sampler:
  """
