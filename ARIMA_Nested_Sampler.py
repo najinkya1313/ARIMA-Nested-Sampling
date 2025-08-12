@@ -1,5 +1,6 @@
 ##Python packages
 from ARIMA_fast import ARIMA_fast
+import norm_prior
 import blackjax
 import time
 import jax.numpy as jnp
