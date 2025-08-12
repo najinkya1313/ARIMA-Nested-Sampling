@@ -4,7 +4,7 @@ import jax.numpy as jnp
 
 ##------------------------------------------------------------FINAL LOGPRIOR AND PARTICLES FUNCTION FOR NORMAL DISTRIBUTIONS----------------------------------------------------##
 def normal_prior(rng_key,num_live,prior_params):
- 
+ p,d,q = self.order
  prior_params_modsigma = dict(list(prior_params.items())[:-1])
  prior_params_sigma = prior_params['sigma']
  
