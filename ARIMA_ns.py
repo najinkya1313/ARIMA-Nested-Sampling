@@ -1,4 +1,3 @@
-##Python packages
 import blackjax
 import time
 import jax.numpy as jnp
@@ -15,7 +14,7 @@ class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
  """
- def __init__(self,data,order,log_likelihood,prior_bounds,num_live,num_delete,seed):
+ def __init__(self,data,order,log_likelihood,prior_type,prior_params,num_live,num_delete,seed):
   """
   Initializes and runs the Nested Sampling.
   Args:
@@ -31,24 +30,18 @@ class ARIMA_Nested_Sampler:
   self.data = jnp.asarray(data)
   self.order = order
   self.log_likelihood = log_likelihood
-  self.prior_bounds = prior_bounds
-  self.parameters = prior_bounds.keys()
+  self.prior_params = prior_params
+  self.parameters = prior_params.keys()
   self.num_live = num_live
   self.num_delete = num_delete
   self.seed = seed
-   
+  p,d,q = self.order
 
  
-  """
-  Runs the Nested Sampling procedure for ARIMA Models.
-  Args:
-    num_live : number of live points to draw from the prior space.
-    num_delete : number of points to delete at each iteration.
-    seed : Seed for random number generator
-  """
+  
     
   print(f"Running Nested Sampling for fitting ARIMA {self.order} model...")
-  num_dims = len(self.prior_bounds)
+  num_dims = len(self.prior_params)
   num_inner_steps = num_dims * 5
   p,d,q = self.order
   if num_dims!=(p+q+1):
@@ -56,7 +49,12 @@ class ARIMA_Nested_Sampler:
     
   rng_key = jax.random.PRNGKey(self.seed)
   rng_key,prior_key = jax.random.split(rng_key)
-  particles,logprior_fn = blackjax.ns.utils.uniform_prior(prior_key,self.num_live,self.prior_bounds)
+  if prior_type=='normal':
+   particles,logprior_fn = normal_prior(prior_key,self.num_live,self.prior_params,self.order)
+  elif prior_type=='uniform':
+   particles,logprior_fn = blackjax.ns.utils.uniform_prior(prior_key,self.num_live,self.prior_params)
+  else:
+    raise SyntaxError(f"Invalid prior_type '{prior_type}'. prior_type should be 'normal' or 'uniform'")
   ##Nested Sampler
   nested_sampler = blackjax.nss(logprior_fn=logprior_fn,loglikelihood_fn = self.log_likelihood,num_delete=self.num_delete,num_inner_steps=num_inner_steps)
   init_fn = jax.jit(nested_sampler.init)
@@ -79,7 +77,7 @@ class ARIMA_Nested_Sampler:
 
  
      ##Processing results
-  columns = [i for i in self.prior_bounds.keys()]
+  columns = [i for i in self.prior_params.keys()]
   self.columns = columns
     
   data = jnp.vstack([dead.particles[key] for key in columns]).T
@@ -95,7 +93,7 @@ class ARIMA_Nested_Sampler:
   self.posterior_samples = posterior_samples
   Z = self.posterior_samples.logZ()
   posterior_means = []
-  for key in self.prior_bounds.keys():
+  for key in self.prior_params.keys():
      means = self.posterior_samples[key].mean()
      posterior_means.append(means)
   self.posterior_means = posterior_means
@@ -111,7 +109,7 @@ class ARIMA_Nested_Sampler:
     print("----------------------------------------------------")
     print(f"Nested sampling runtime: {self.ns_time:.2f} seconds")
     print("----------------------------------------------------")
-    for index,key in enumerate(self.prior_bounds.keys()):
+    for index,key in enumerate(self.prior_params.keys()):
      print(f"Posterior mean for {key} : {self.posterior_means[index]}")
     print("---------------------------------------------------")
     
