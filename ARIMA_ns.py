@@ -1,3 +1,4 @@
+##Python packages
 import blackjax
 import time
 import jax.numpy as jnp
@@ -38,7 +39,13 @@ class ARIMA_Nested_Sampler:
   p,d,q = self.order
 
  
-  
+  """
+  Runs the Nested Sampling procedure for ARIMA Models.
+  Args:
+    num_live : number of live points to draw from the prior space.
+    num_delete : number of points to delete at each iteration.
+    seed : Seed for random number generator
+  """
     
   print(f"Running Nested Sampling for fitting ARIMA {self.order} model...")
   num_dims = len(self.prior_params)
@@ -133,7 +140,9 @@ class ARIMA_Nested_Sampler:
     elif type(compare)!= bool:
       raise SyntaxError(f"Invalid value {compare} for compare argument. compare should be == True, False, or None")
     
-   
+   else:
+    y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-1],self.posterior_means[0:(self.order[0])],self.posterior_means[self.order[0]:-1])
+
    
    
     self.y_fit = y_fit
@@ -142,6 +151,12 @@ class ARIMA_Nested_Sampler:
     plt.xlabel('Time-step')
     plt.ylabel('Value')
     plt.show()
+
+    
+    
+   
+    
+
 
     
     
