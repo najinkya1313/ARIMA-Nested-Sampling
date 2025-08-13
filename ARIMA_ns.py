@@ -75,6 +75,7 @@ class ARIMA_Nested_Sampler:
    particles,logprior_fn = blackjax.ns.utils.uniform_prior(prior_key,self.num_live,self.prior_params)
   else:
     raise SyntaxError(f"Invalid prior_type '{prior_type}'. prior_type should be 'normal' or 'uniform'")
+  self.particles = particles
   ##Nested Sampler
   nested_sampler = blackjax.nss(logprior_fn=logprior_fn,loglikelihood_fn = self.log_likelihood,num_delete=self.num_delete,num_inner_steps=num_inner_steps)
   init_fn = jax.jit(nested_sampler.init)
