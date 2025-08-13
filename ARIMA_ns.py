@@ -16,13 +16,12 @@ from norm_prior import normal_prior
 
 
 
-
 def loglikelihood(data,order,parameters):
     p,d,q = order
     def llk(params):
         sigma = params['sigma']
         parameters_modulo_sigma = list(parameters.keys())[:-1]
-        arima_parameters = [key for key in parameters_modulo_sigma]
+        arima_parameters = [params[key] for key in parameters_modulo_sigma]
         phi = arima_parameters[0:p]
         theta = arima_parameters[p:p+q]
         y_model = ARIMA_fast(data,order,0,phi,theta)
