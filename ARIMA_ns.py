@@ -16,7 +16,7 @@ from norm_prior import normal_prior
 
 
 
-def loglikelihood(data,order,parameters):
+def loglikelihood(data,order,parameters,seed):
     p,d,q = order
     def llk(params):
         sigma = params['sigma']
@@ -24,7 +24,7 @@ def loglikelihood(data,order,parameters):
         arima_parameters = [params[key] for key in parameters_modulo_sigma]
         phi = arima_parameters[0:p]
         theta = arima_parameters[p:p+q]
-        y_model = ARIMA_fast(data,order,0,phi,theta)
+        y_model = ARIMA_fast(data,order,0,phi,theta,seed)
         return jax.scipy.stats.multivariate_normal.logpdf(data,y_model,sigma**2)
  
     return llk
