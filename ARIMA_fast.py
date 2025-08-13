@@ -4,7 +4,7 @@ from functools import partial
 
 
 @partial(jax.jit, static_argnums=(1,))          # ‘order’ is static
-def ARIMA_fast(data, order, sigma, phi, theta, *, seed):
+def ARIMA_fast(data, order, sigma, phi, theta, seed):
     """
     Vectorised non-seasonal ARIMA(p,d,q) for JAX/XLA.
     """
