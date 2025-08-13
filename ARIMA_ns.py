@@ -11,17 +11,37 @@ from ARIMA_fast import ARIMA_fast
 from norm_prior import normal_prior
 
 
+
+
+
+
+
+
+def loglikelihood(data,order,parameters):
+    p,d,q = order
+    def llk(params):
+        sigma = params['sigma']
+        parameters_modulo_sigma = list(parameters.keys())[:-1]
+        arima_parameters = [key for key in parameters_modulo_sigma]
+        phi = arima_parameters[0:p]
+        theta = arima_parameters[p:p+q]
+        y_model = ARIMA_fast(data,order,0,phi,theta)
+        return jax.scipy.stats.multivariate_normal.logpdf(data,y_model,sigma**2)
+ 
+    return llk
+
+
+
 class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
  """
- def __init__(self,data,order,log_likelihood,prior_type,prior_params,num_live,num_delete,seed):
+ def __init__(self,data,order,prior_type,prior_params,num_live,num_delete,seed):
   """
   Initializes and runs the Nested Sampling.
   Args:
      data (array or list) : The time_series data to be fitted.
      order (tuple) : (p,d,q) order of the ARIMA model.
-     lklhood (func) : The log-likelihood function containing the ARIMA model.
      prior_bounds (dict) : Bounds on the prior distribution.
      num_live (int) : number of live points to draw from the prior space
      num_delete : number of points to delete at each iteration
@@ -30,22 +50,16 @@ class ARIMA_Nested_Sampler:
   """
   self.data = jnp.asarray(data)
   self.order = order
-  self.log_likelihood = log_likelihood
   self.prior_params = prior_params
+  self.log_likelihood = loglikelihood(self.data,self.order,self.prior_params)
   self.parameters = prior_params.keys()
   self.num_live = num_live
   self.num_delete = num_delete
   self.seed = seed
   p,d,q = self.order
-
+  
  
-  """
-  Runs the Nested Sampling procedure for ARIMA Models.
-  Args:
-    num_live : number of live points to draw from the prior space.
-    num_delete : number of points to delete at each iteration.
-    seed : Seed for random number generator
-  """
+  
     
   print(f"Running Nested Sampling for fitting ARIMA {self.order} model...")
   num_dims = len(self.prior_params)
@@ -83,7 +97,7 @@ class ARIMA_Nested_Sampler:
   print(f"Finished Nested Sampling with a total runtime of : {ns_time:.2f} seconds")
 
  
-     ##Processing results
+  ##Processing results
   columns = [i for i in self.prior_params.keys()]
   self.columns = columns
     
@@ -136,29 +150,20 @@ class ARIMA_Nested_Sampler:
    if compare is not None:
     if compare==True:
       plt.plot(self.data,label='Data')
+      plt.plot(y_fit,label=f'ARIMA {self.order} model')
     
     elif type(compare)!= bool:
       raise SyntaxError(f"Invalid value {compare} for compare argument. compare should be == True, False, or None")
     
    else:
-    y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-1],self.posterior_means[0:(self.order[0])],self.posterior_means[self.order[0]:-1])
-
+    plt.plot(y_fit,label=f'ARIMA {self.order} model')
+ 
    
    
     self.y_fit = y_fit
-    plt.plot(y_fit,label=f"ARIMA{self.order} model fit.")
+    
     plt.legend()
     plt.xlabel('Time-step')
     plt.ylabel('Value')
     plt.show()
-
-    
-    
-   
-    
-
-
-    
-    
-   
-    
+ 
