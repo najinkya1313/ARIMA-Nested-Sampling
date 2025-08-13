@@ -50,12 +50,12 @@ class ARIMA_Nested_Sampler:
   self.data = jnp.asarray(data)
   self.order = order
   self.prior_params = prior_params
-  self.log_likelihood = loglikelihood(self.data,self.order,self.prior_params,self.seed)
   self.parameters = prior_params.keys()
   self.num_live = num_live
   self.num_delete = num_delete
   self.seed = seed
   p,d,q = self.order
+  self.log_likelihood = loglikelihood(self.data,self.order,self.prior_params,self.seed)
   
  
   
