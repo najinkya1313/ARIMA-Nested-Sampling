@@ -67,3 +67,46 @@ def ARIMA_fast(data, order, sigma, phi, theta, seed):
     )
 
     return recovered
+
+
+def ARIMA_forecast(data,order,sigma,phi,theta,forecast_num,seed):
+    r"""A function for forecasting future values for a given time-series data (can also be used for generating artificial ARIMA data) 
+    Args:
+     data : time-series data to use for forecasting
+     order : (p,d,q) order of the ARIMA Model
+     sigma : $\sigma$ value for present shocks $\epsilon_t$
+     phi : list or array of the AR $\phi$ coefficients of ARIMA Model
+     theta : list or array of the MA $\theta$ coefficients of ARIMA Model
+     forecast_num : number of future points to forecast
+     seed : seed for random number generator
+    
+    
+    """
+    y_model = ARIMA_fast(data,order,sigma,phi,theta,seed)
+    p,d,q = order
+    phi_coeffs = jnp.array(phi)
+    theta_coeffs = jnp.array(theta)
+    forecasted_points = []
+    k = (1.0 - jnp.sum(phi_coeffs)) * jnp.mean(data)
+    rng_key = jax.random.PRNGKey(seed)
+    error_key = jax.random.split(rng_key,forecast_num)
+    epsilon_lagged = y_model[-q:] - data[-q:]
+    while len(forecasted_points)<forecast_num:
+        for key in error_key:
+         
+         y_phis = phi_coeffs*jnp.flip(data[-p:])
+         
+         if q==0:
+            epsilon_lagged = jnp.empty(q)
+         if p==0:
+            y_phis = jnp.empty(p)
+         y_thetas = theta_coeffs * jnp.flip(epsilon_lagged)
+         epsilon_t = sigma* jax.random.normal(key)
+         y_forecast = k + jnp.sum(y_phis) + jnp.sum(y_thetas) + epsilon_t
+         y_forecast_arr = jnp.array([y_forecast])
+         data = jnp.concatenate([data,y_forecast_arr])
+         forecasted_points.append(y_forecast)
+         jnp.concatenate([y_model,jnp.array([y_forecast])])
+    
+    forecasted_points = jnp.array(forecasted_points)
+    return (forecasted_points,data)
