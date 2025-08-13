@@ -10,6 +10,7 @@ def ARIMA_fast(data, order, sigma, phi, theta, *, seed):
     """
     
     key = jax.random.PRNGKey(seed)
+    key,arima_key = jax.random.split(key)
     p, d, q = order
     x_dtype = jnp.asarray(data).dtype            # keep original dtype
     data    = jnp.asarray(data, dtype=jnp.float32)  # or x_dtype
@@ -61,7 +62,7 @@ def ARIMA_fast(data, order, sigma, phi, theta, *, seed):
     recovered = jax.lax.cond(
         sigma == 0,
         lambda r: r,
-        lambda r: r + sigma * jax.random.normal(key, r.shape, dtype=r.dtype),
+        lambda r: r + sigma * jax.random.normal(arima_key, r.shape, dtype=r.dtype),
         recovered,
     )
 
