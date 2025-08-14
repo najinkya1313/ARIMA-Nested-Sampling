@@ -54,7 +54,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
 
   return filtered_params
  
- particle_keys = jax.random.split(rng_key,num_live*3)
+ particle_keys = jax.random.split(rng_key,num_live*10)
  unfiltered_particles = jax.vmap(prior_sample)(particle_keys)
  def logprior_fn(params):
   logprior = 0.0
