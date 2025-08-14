@@ -81,7 +81,7 @@ class ARIMA_Nested_Sampler:
   self.data = jnp.asarray(data)
   self.order = order
   
-  self.parameters = prior_params.keys()
+  
   self.num_live = num_live
   self.num_delete = num_delete
   self.seed = seed
