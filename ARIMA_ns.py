@@ -86,13 +86,14 @@ class ARIMA_Nested_Sampler:
   self.num_delete = num_delete
   self.seed = seed
   p,d,q = self.order
-  self.log_likelihood = loglikelihood(self.data,self.order,self.prior_params,self.seed)
+  
   self.prior_bounds = prior_bounds
   self.prior_type = prior_type
 
 
   prior_params = prior_parameters(self.prior_type,self.order,self.prior_bounds)
   self.prior_params = prior_params
+  self.log_likelihood = loglikelihood(self.data,self.order,self.prior_params,self.seed)
  
   
     
