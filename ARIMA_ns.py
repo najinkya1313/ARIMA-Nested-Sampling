@@ -29,13 +29,44 @@ def loglikelihood(data,order,parameters,seed):
  
     return llk
 
+def prior_parameters(prior_type:str,order:tuple,prior_bounds={}):
+    """A helper function to return the prior parameters dictionary to be used in Nested Sampling
+    Arguments:
+     prior_type: type of prior distribution to be used - 'normal' or 'uniform'
+     order : the order (p,d,q) of ARIMA model
+     prior_bounds : the bounds of prior parameters if prior_type=='uniform'
+    
+    """
+    p,d,q = order
+    prior_params = {}
+    if prior_type =="normal":
+     for ar in range(p):
+        prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':1}})
+     for ma in range(q):
+        prior_params.update({f'theta_{ar+1}':{'mean':0,'scale':1}})
+     
+     prior_params.update({'sigma':{'mean':0,'scale':1}})
+     
+    elif prior_type =="uniform":
+     if len(prior_bounds)==0:
+        raise ValueError("Missing prior_bounds for uniform prior.")
+     for ar in range(p):
+        prior_params.update({f'phi_{ar+1}': prior_bounds[f'phi_{ar+1}']})
+     for ma in range(q):
+        prior_params.update({f'theta_{ar+1}':prior_bounds[f'theta_{ar+1}']})
+     prior_params.update({'sigma':prior_bounds['sigma']})
+    
+    else:
+       raise SyntaxError("prior_type should be normal or uniform.")
+
+    return prior_params
 
 
 class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
  """
- def __init__(self,data,order,prior_type,prior_params,num_live,num_delete,seed):
+ def __init__(self,data,order,prior_type,num_live,num_delete,seed,prior_bounds={}):
   """
   Initializes and runs the Nested Sampling.
   Args:
@@ -49,14 +80,19 @@ class ARIMA_Nested_Sampler:
   """
   self.data = jnp.asarray(data)
   self.order = order
-  self.prior_params = prior_params
+  
   self.parameters = prior_params.keys()
   self.num_live = num_live
   self.num_delete = num_delete
   self.seed = seed
   p,d,q = self.order
   self.log_likelihood = loglikelihood(self.data,self.order,self.prior_params,self.seed)
-  
+  self.prior_bounds = prior_bounds
+  self.prior_type = prior_type
+
+
+  prior_params = prior_parameters(self.prior_type,self.order,self.prior_bounds)
+  self.prior_params = prior_params
  
   
     
@@ -166,4 +202,3 @@ class ARIMA_Nested_Sampler:
     plt.xlabel('Time-step')
     plt.ylabel('Value')
     plt.show()
- 
