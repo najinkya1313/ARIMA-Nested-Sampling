@@ -43,7 +43,7 @@ def prior_parameters(prior_type:str,order:tuple,prior_bounds={}):
      for ar in range(p):
         prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':1}})
      for ma in range(q):
-        prior_params.update({f'theta_{ar+1}':{'mean':0,'scale':1}})
+        prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':1}})
      
      prior_params.update({'sigma':{'mean':0,'scale':1}})
      
@@ -53,7 +53,7 @@ def prior_parameters(prior_type:str,order:tuple,prior_bounds={}):
      for ar in range(p):
         prior_params.update({f'phi_{ar+1}': prior_bounds[f'phi_{ar+1}']})
      for ma in range(q):
-        prior_params.update({f'theta_{ar+1}':prior_bounds[f'theta_{ar+1}']})
+        prior_params.update({f'theta_{ma+1}':prior_bounds[f'theta_{ma+1}']})
      prior_params.update({'sigma':prior_bounds['sigma']})
     
     else:
