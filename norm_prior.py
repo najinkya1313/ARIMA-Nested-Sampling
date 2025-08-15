@@ -6,9 +6,6 @@ def normal_prior(rng_key,num_live,prior_params,order):
  p,d,q = order
  prior_params_modsigma = dict(list(prior_params.items())[:-1])
  prior_params_sigma = prior_params['sigma']
- if len(prior_params.keys())!=p+d+q+1:
-   raise ValueError("Number of prior_params inconsistent with ARIMA order.")
- 
  ##-------------------------------------------------Logprior function–------------------------------------------
  def logprior_fn(params):
   logprior = 0.0
