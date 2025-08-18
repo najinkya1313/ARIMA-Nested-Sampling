@@ -90,7 +90,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
    valid_particles = {label:value[:num_live] for label,value in valid_particles.items()}
    return valid_particles
  
- particle_keys = jax.random.split(rng_key,num_live*100)
+ particle_keys = jax.random.split(rng_key,num_live*1000)
  unfiltered_particles = jax.vmap(prior_sample)(particle_keys)
  particles = particles_filter(unfiltered_particles)
 
