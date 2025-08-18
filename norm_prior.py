@@ -55,7 +55,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
   phi_particles_flipped = jnp.flip(phi_particles)
   const = jnp.ones(1)
   phi_poly = jnp.concatenate([-phi_particles_flipped,const])
-  theta_poly = jnp.concatenate([-theta_particles_flipped,const])
+  theta_poly = jnp.concatenate([theta_particles_flipped,const])
   roots_phi = jnp.roots(phi_poly,strip_zeros=False)
   roots_theta = jnp.roots(theta_poly,strip_zeros=False)
   roots = jnp.concatenate([roots_phi,roots_theta])
