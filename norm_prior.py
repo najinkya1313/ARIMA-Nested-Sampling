@@ -11,7 +11,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
   logprior = 0.0
   parameters_mod_sigma = jnp.array([-params[key] for key in prior_params_modsigma.keys()])
   ar_parameters = jnp.flip(parameters_mod_sigma[0:p])
-  ma_parameters = jnp.flip(parameters_mod_sigma[p:q])
+  ma_parameters = jnp.flip(parameters_mod_sigma[p:p+q])
   const = jnp.ones(1)
   poly_ar = jnp.concatenate([ar_parameters,const])
   poly_ma = jnp.concatenate([ma_parameters,const])
