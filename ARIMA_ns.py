@@ -182,8 +182,8 @@ class ARIMA_Nested_Sampler:
     
     
   
- def fit_plot(self,compare=None):
-   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-1],self.posterior_means[0:(self.order[0])],self.posterior_means[self.order[0]:-1])
+ def fit_model(self,compare=None):
+   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-1],self.posterior_means[0:(self.order[0])],self.posterior_means[self.order[0]:-1],self.seed+2)
    if compare is not None:
     if compare==True:
       plt.plot(self.data,label='Data')
@@ -203,3 +203,23 @@ class ARIMA_Nested_Sampler:
     plt.xlabel('Time-step')
     plt.ylabel('Value')
     plt.show()
+    return y_fit
+
+
+def ARIMA_model_comparison(data,orders,prior_type,num_live,num_delete,seeds,prior_bounds={}):
+    evidences = []
+    for order,seed in zip(orders,seeds):
+        model = ARIMA_Nested_Sampler(data,order,prior_type,num_live,num_delete,seed,prior_bounds)
+        evidences.append(model.log_evidence)
+    evidences = jnp.array(evidences)
+    x = range(len(orders))
+    max_index = jnp.where(evidences==max(evidences))[0][0]
+    print(max_index)
+    plt.plot(x,evidences,'o')
+    plt.plot(x[max_index],evidences[max_index],marker='*',markersize=10,color='red')
+    plt.axvline(x=x[max_index],c='black',linestyle='--',alpha=0.6)
+    plt.xticks(ticks=range(len(orders)),labels=[str(order) for order in orders])
+    plt.xlabel('ARIMA (p,d,q) order')
+    plt.ylabel('Log Evidence')
+    plt.title('Model Comparison Plot')
+    return evidences
