@@ -1,7 +1,7 @@
 import jax
 import jax.numpy as jnp
 
-@jax.jit
+
 def normal_prior(rng_key,num_live,prior_params,order):
  p,d,q = order
  prior_params_modsigma = dict(list(prior_params.items())[:-1])
@@ -36,6 +36,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
   return logprior
 
 ##---------------------------------------------------Particle sampler-----------------------------------------------:
+ @jax.jit
  def prior_sample(rng_key):
   init_keys = jax.random.split(rng_key, len(prior_params)-1)
   param_labels = [label for label in prior_params_modsigma.keys()]
