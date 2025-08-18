@@ -1,7 +1,7 @@
 import jax
 import jax.numpy as jnp
 
-
+@jax.jit
 def normal_prior(rng_key,num_live,prior_params,order):
  p,d,q = order
  prior_params_modsigma = dict(list(prior_params.items())[:-1])
@@ -90,7 +90,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
    valid_particles = {label:value[:num_live] for label,value in valid_particles.items()}
    return valid_particles
  
- particle_keys = jax.random.split(rng_key,num_live*1000)
+ particle_keys = jax.random.split(rng_key,num_live*10000)
  unfiltered_particles = jax.vmap(prior_sample)(particle_keys)
  particles = particles_filter(unfiltered_particles)
 
