@@ -13,7 +13,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
   ar_parameters = jnp.flip(parameters_mod_sigma[0:p])
   ma_parameters = jnp.flip(parameters_mod_sigma[p:p+q])
   const = jnp.ones(1)
-  poly_ar = jnp.concatenate([ar_parameters,const])
+  poly_ar = jnp.concatenate([-ar_parameters,const])
   poly_ma = jnp.concatenate([ma_parameters,const])
   roots_phi = jnp.roots(poly_ar,strip_zeros=False)
   roots_ma = jnp.roots(poly_ma,strip_zeros=False)
