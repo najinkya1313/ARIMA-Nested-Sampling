@@ -31,7 +31,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
   x_sig = params["sigma"]
   mean_sigma = prior_params_sigma['mean']
   scale_sigma = prior_params_sigma['scale']
-  logprior_sigma = jax.scipy.stats.truncnorm.logpdf(x_sig,1e-5,10,mean_sigma,scale_sigma)
+  logprior_sigma = jax.scipy.stats.truncnorm.logpdf(x_sig,1e-5,jnp.inf,mean_sigma,scale_sigma)
   logprior = output + logprior_sigma
   return logprior
 
@@ -47,7 +47,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
  
 
   rng_key,sigma_key = jax.random.split(rng_key)
-  sigma_particle = jax.random.truncated_normal(sigma_key,0,5)
+  sigma_particle = 7*jax.random.truncated_normal(sigma_key,0,jnp.inf)
  
  #Roots calculation
   phi_particles = particles_all[0:p]
