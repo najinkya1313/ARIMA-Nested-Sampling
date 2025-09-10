@@ -8,8 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import jax
 from ARIMA import ARIMA_fast
-from norm_prior import normal_prior
-
+from norm_prior import normal_prior,normal_prior_unconstrained
 
 
 
@@ -41,11 +40,11 @@ def prior_parameters(prior_type:str,order:tuple,prior_bounds={}):
     prior_params = {}
     if prior_type =="normal":
      for ar in range(p):
-        prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':1}})
+        prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':3}})
      for ma in range(q):
-        prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':1}})
+        prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':3}})
      
-     prior_params.update({'sigma':{'mean':0,'scale':1}})
+     prior_params.update({'sigma':{'mean':0,'scale':7}})
      
     elif prior_type =="uniform":
      if len(prior_bounds)==0:
@@ -110,6 +109,8 @@ class ARIMA_Nested_Sampler:
    particles,logprior_fn = normal_prior(prior_key,self.num_live,self.prior_params,self.order)
   elif prior_type=='uniform':
    particles,logprior_fn = blackjax.ns.utils.uniform_prior(prior_key,self.num_live,self.prior_params)
+  elif prior_type='normal_unconstrained':
+   particles,logprior_fn = normal_prior_unconstrained(prior_key,self.num_live,self.prior_params,self.order)
   else:
     raise SyntaxError(f"Invalid prior_type '{prior_type}'. prior_type should be 'normal' or 'uniform'")
   self.particles = particles
@@ -223,3 +224,5 @@ def ARIMA_model_comparison(data,orders,prior_type,num_live,num_delete,seeds,prio
     plt.ylabel('Log Evidence')
     plt.title('Model Comparison Plot')
     return evidences
+
+
