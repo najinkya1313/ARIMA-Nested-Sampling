@@ -109,7 +109,7 @@ class ARIMA_Nested_Sampler:
    particles,logprior_fn = normal_prior(prior_key,self.num_live,self.prior_params,self.order)
   elif prior_type=='uniform':
    particles,logprior_fn = blackjax.ns.utils.uniform_prior(prior_key,self.num_live,self.prior_params)
-  elif prior_type='normal_unconstrained':
+  elif prior_type=='normal_unconstrained':
    particles,logprior_fn = normal_prior_unconstrained(prior_key,self.num_live,self.prior_params,self.order)
   else:
     raise SyntaxError(f"Invalid prior_type '{prior_type}'. prior_type should be 'normal' or 'uniform'")
