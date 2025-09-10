@@ -38,7 +38,7 @@ def prior_parameters(prior_type:str,order:tuple,prior_bounds={}):
     """
     p,d,q = order
     prior_params = {}
-    if prior_type =="normal":
+    if prior_type !="uniform":
      for ar in range(p):
         prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':3}})
      for ma in range(q):
