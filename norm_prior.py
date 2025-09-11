@@ -98,7 +98,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
  ##------------------While loop to keep drawing samples until num_live reached (optimize with jax later)--------------------------------
  while len(particles['sigma'])<num_live:
    rng_key,sample_key = jax.random.split(rng_key)
-   sample_particle_keys = jax.random.split(sample_key,num_live)
+   sample_particle_keys = jax.random.split(sample_key,num_live*10000)
    new_particles = jax.vmap(prior_sample)(sample_particle_keys)
    new_particles_filtered = particles_filter(new_particles)
    for key,vals in new_particles_filtered.items():
