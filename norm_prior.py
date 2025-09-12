@@ -76,35 +76,35 @@ def normal_prior(rng_key,num_live,prior_params,order):
     params.update({'sigma':0.})
     return params
   filtered_params = jax.lax.cond(jnp.all(abs(roots)>1),valid_point,invalid_point,roots)
-
-  return filtered_params
+  initlogprior = logprior_fn(filtered_params)
+  return filtered_params,initlogprior
  ##--------------------------------------------------------------------------------------------------------
 
  
  ##--------------------------------------Filter to only accept valid particles-------------------------------
- def particles_filter(particles):
-   init_logprior = jax.vmap(logprior_fn)(particles)
-   mask = jnp.where(init_logprior!=-jnp.inf)
+ def particles_filter(particles,initlogprior):
+   
+   mask = initlogprior!=-jnp.inf
    valid_particles = {}
    for key,vals in particles.items():
      valid_particles.update({key:vals[mask]})
-   valid_particles = {label:value[:num_live] for label,value in valid_particles.items()}
+  
    return valid_particles
  
- particle_keys = jax.random.split(rng_key,num_live*10000)
- unfiltered_particles = jax.vmap(prior_sample)(particle_keys)
- particles = particles_filter(unfiltered_particles)
-
+ particle_keys = jax.random.split(rng_key,num_live*1000)
+ unfiltered_particles,unfilteredlogprior = jax.vmap(prior_sample)(particle_keys)
+ particles = particles_filter(unfiltered_particles,unfilteredlogprior)
+ 
  ##------------------While loop to keep drawing samples until num_live reached (optimize with jax later)--------------------------------
  while len(particles['sigma'])<num_live:
    rng_key,sample_key = jax.random.split(rng_key)
-   sample_particle_keys = jax.random.split(sample_key,num_live*10000)
-   new_particles = jax.vmap(prior_sample)(sample_particle_keys)
-   new_particles_filtered = particles_filter(new_particles)
+   sample_particle_keys = jax.random.split(sample_key,num_live*1000)
+   new_particles,newlogprior = jax.vmap(prior_sample)(sample_particle_keys)
+   new_particles_filtered = particles_filter(new_particles,newlogprior)
    for key,vals in new_particles_filtered.items():
      new_arr = jnp.concatenate([particles[key],vals])
      particles.update({key:new_arr})
-  
+   
  particles = {label:value[:num_live] for label,value in particles.items()}
    
  return particles,logprior_fn
