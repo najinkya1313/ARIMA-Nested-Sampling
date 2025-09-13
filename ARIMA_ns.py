@@ -40,11 +40,11 @@ def prior_parameters(prior_type:str,order:tuple,prior_bounds={}):
     prior_params = {}
     if prior_type !="uniform":
      for ar in range(p):
-        prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':3}})
+        prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':1}})
      for ma in range(q):
-        prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':3}})
+        prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':1}})
      
-     prior_params.update({'sigma':{'mean':0,'scale':7}})
+     prior_params.update({'sigma':{'mean':0,'scale':1}})
      
     elif prior_type =="uniform":
      if len(prior_bounds)==0:
