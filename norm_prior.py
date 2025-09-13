@@ -2,7 +2,7 @@ import jax
 import jax.numpy as jnp
 
 
-def normal_prior(rng_key,num_live,prior_params,order):
+def normal_prior(rng_key,num_live,prior_params,scale,order):
  p,d,q = order
  prior_params_modsigma = dict(list(prior_params.items())[:-1])
  prior_params_sigma = prior_params['sigma']
@@ -38,12 +38,13 @@ def normal_prior(rng_key,num_live,prior_params,order):
 ##---------------------------------------------------Particle sampler-----------------------------------------------:
  @jax.jit
  def prior_sample(rng_key):
+  
   init_keys = jax.random.split(rng_key, len(prior_params)-1)
   param_labels = [label for label in prior_params_modsigma.keys()]
   phi_labels = param_labels[0:p]
   theta_labels = param_labels[p:p+q]
   params = {}
-  particles_all = jnp.array([jax.random.normal(rng_key) for rng_key in init_keys])
+  particles_all = scale*jnp.array([jax.random.normal(rng_key) for rng_key in init_keys])
  
 
   rng_key,sigma_key = jax.random.split(rng_key)
@@ -75,21 +76,24 @@ def normal_prior(rng_key,num_live,prior_params,order):
       params.update({theta_label:0.})
     params.update({'sigma':0.})
     return params
+  
   filtered_params = jax.lax.cond(jnp.all(abs(roots)>1),valid_point,invalid_point,roots)
   initlogprior = logprior_fn(filtered_params)
+  
   return filtered_params,initlogprior
  ##--------------------------------------------------------------------------------------------------------
 
  
  ##--------------------------------------Filter to only accept valid particles-------------------------------
- def particles_filter(particles,initlogprior):
+ def particles_filter(unfiltered_particles,initlogprior):
    
-   mask = initlogprior!=-jnp.inf
-   valid_particles = {}
-   for key,vals in particles.items():
-     valid_particles.update({key:vals[mask]})
-  
-   return valid_particles
+   
+   mask = jnp.where(initlogprior!=-jnp.inf)
+   
+   for key,vals in unfiltered_particles.items():
+     unfiltered_particles.update({key:vals[mask]})
+   
+   return unfiltered_particles
  
  particle_keys = jax.random.split(rng_key,num_live*1000)
  unfiltered_particles,unfilteredlogprior = jax.vmap(prior_sample)(particle_keys)
@@ -104,7 +108,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
    for key,vals in new_particles_filtered.items():
      new_arr = jnp.concatenate([particles[key],vals])
      particles.update({key:new_arr})
-   
+   print(f"Valid particles: {len(particles['sigma'])}")
  particles = {label:value[:num_live] for label,value in particles.items()}
    
  return particles,logprior_fn
