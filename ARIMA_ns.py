@@ -28,7 +28,7 @@ def loglikelihood(data,order,parameters,seed):
  
     return llk
 
-def prior_parameters(prior_type:str,order:tuple,prior_bounds={}):
+def prior_parameters(prior_type:str,order:tuple,scale,prior_bounds={}):
     """A helper function to return the prior parameters dictionary to be used in Nested Sampling
     Arguments:
      prior_type: type of prior distribution to be used - 'normal' or 'uniform'
@@ -40,9 +40,9 @@ def prior_parameters(prior_type:str,order:tuple,prior_bounds={}):
     prior_params = {}
     if prior_type !="uniform":
      for ar in range(p):
-        prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':1}})
+        prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':scale}})
      for ma in range(q):
-        prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':1}})
+        prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':scale}})
      
      prior_params.update({'sigma':{'mean':0,'scale':1}})
      
@@ -65,7 +65,7 @@ class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
  """
- def __init__(self,data,order,prior_type,num_live,num_delete,seed,prior_bounds={}):
+ def __init__(self,data,order,prior_type,prior_scale,num_live,num_delete,seed,prior_bounds={}):
   """
   Initializes and runs the Nested Sampling.
   Args:
@@ -84,13 +84,14 @@ class ARIMA_Nested_Sampler:
   self.num_live = num_live
   self.num_delete = num_delete
   self.seed = seed
+  self.prior_scale = prior_scale
   p,d,q = self.order
   
   self.prior_bounds = prior_bounds
   self.prior_type = prior_type
 
 
-  prior_params = prior_parameters(self.prior_type,self.order,self.prior_bounds)
+  prior_params = prior_parameters(self.prior_type,self.order,self.prior_scale,self.prior_bounds)
   self.prior_params = prior_params
   self.log_likelihood = loglikelihood(self.data,self.order,self.prior_params,self.seed)
  
@@ -106,7 +107,7 @@ class ARIMA_Nested_Sampler:
   rng_key = jax.random.PRNGKey(self.seed)
   rng_key,prior_key = jax.random.split(rng_key)
   if prior_type=='normal':
-   particles,logprior_fn = normal_prior(prior_key,self.num_live,self.prior_params,self.order)
+   particles,logprior_fn = normal_prior(prior_key,self.num_live,self.prior_params,self.prior_scale,self.order)
   elif prior_type=='uniform':
    particles,logprior_fn = blackjax.ns.utils.uniform_prior(prior_key,self.num_live,self.prior_params)
 
