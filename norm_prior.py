@@ -2,10 +2,11 @@ import jax
 import jax.numpy as jnp
 
 
-def normal_prior(rng_key,num_live,prior_params,scale,order):
+def normal_prior(rng_key,num_live,prior_params,order):
  p,d,q = order
  prior_params_modsigma = dict(list(prior_params.items())[:-1])
  prior_params_sigma = prior_params['sigma']
+ overall_scale = list(prior_params_modsigma.values())[0]['scale']
  ##-------------------------------------------------Logprior function–------------------------------------------
  def logprior_fn(params):
   logprior = 0.0
@@ -44,7 +45,7 @@ def normal_prior(rng_key,num_live,prior_params,scale,order):
   phi_labels = param_labels[0:p]
   theta_labels = param_labels[p:p+q]
   params = {}
-  particles_all = scale*jnp.array([jax.random.normal(rng_key) for rng_key in init_keys])
+  particles_all = overall_scale*jnp.array([jax.random.normal(rng_key) for rng_key in init_keys])
  
 
   rng_key,sigma_key = jax.random.split(rng_key)
