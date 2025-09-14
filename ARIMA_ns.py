@@ -107,7 +107,7 @@ class ARIMA_Nested_Sampler:
   rng_key = jax.random.PRNGKey(self.seed)
   rng_key,prior_key = jax.random.split(rng_key)
   if prior_type=='normal':
-   particles,logprior_fn = normal_prior(prior_key,self.num_live,self.prior_params,self.prior_scale,self.order)
+   particles,logprior_fn = normal_prior(prior_key,self.num_live,self.prior_params,self.order)
   elif prior_type=='uniform':
    particles,logprior_fn = blackjax.ns.utils.uniform_prior(prior_key,self.num_live,self.prior_params)
 
