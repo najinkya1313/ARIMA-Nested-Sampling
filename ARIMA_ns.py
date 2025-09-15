@@ -213,6 +213,7 @@ class ARIMA_Nested_Sampler:
     labels = self.prior_params.keys()
     post_samples = [posterior_samples[label] for label in labels ]
     final_samples = list(zip(*post_samples))
+    self.final_samples = final_samples
     fig,axes = plt.subplots(1,figsize=(12,8))
     self.axes = axes
     plot_lines(function,x,final_samples,ax=axes,color='red')
