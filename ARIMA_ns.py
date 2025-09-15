@@ -21,7 +21,7 @@ def loglikelihood(data,order,parameters,seed):
         sigma = params['sigma']
         k = params['k']
         parameters_modulo_sigma_k = list(parameters.keys())[:-2]
-        arima_parameters = [params[key] for key in parameters_modulo_sigma]
+        arima_parameters = [params[key] for key in parameters_modulo_sigma_k]
         phi = arima_parameters[0:p]
         theta = arima_parameters[p:p+q]
         y_model = ARIMA_fast(data,order,0,k,phi,theta,seed)
