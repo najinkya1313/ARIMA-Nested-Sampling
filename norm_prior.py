@@ -57,7 +57,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
   sigma_particle = scale_sigma*(jax.random.truncated_normal(sigma_key,1e-5,jnp.inf) + mean_sigma)
 
   rng_key,k_key = jax.random.split(rng_key)
-  k_particle = intercept_scale*(jax.random.normal(k_key) + intercept_mean)
+  k_particle = intercept_mean + intercept_scale*(jax.random.normal(k_key))
  
  #Roots calculation
   phi_particles = particles_all[0:p]
