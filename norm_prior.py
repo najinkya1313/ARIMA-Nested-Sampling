@@ -28,7 +28,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
    x = params[parameter]
    mean = norm_params['mean']
    scale = norm_params['scale']
-   logprior += jax.scipy.stats.norm.logpdf(abs(x), mean, scale)
+   logprior += jax.scipy.stats.norm.logpdf(x, mean, scale)
   output_phi = jnp.where(jnp.all(abs(roots_phi)>1) ,logprior,-jnp.inf)
   output_ma = jnp.where(jnp.all(abs(roots_ma)>1),logprior,-jnp.inf)
   output = output_phi + output_ma
