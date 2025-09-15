@@ -4,7 +4,7 @@ import jax.numpy as jnp
 
 def normal_prior(rng_key,num_live,prior_params,order):
  p,d,q = order
- prior_params_modsigma = dict(list(prior_params.items())[:-1])
+ prior_params_modsigma = dict(list(prior_params.items())[:-2])
  prior_params_sigma = prior_params['sigma']
  mean_sigma = prior_params_sigma['mean']
  scale_sigma = prior_params_sigma['scale']
