@@ -208,7 +208,7 @@ class ARIMA_Nested_Sampler:
     return y_fit
 
 
-def posterior_fits(self,num_samples,x,function,prediction_function=None,num_predict=None,x_predict=None,predict_data=None):
+ def posterior_fits(self,num_samples,x,function,prediction_function=None,num_predict=None,x_predict=None,predict_data=None):
     posterior_samples = self.posterior_samples.sample(num_samples)
     labels = self.prior_params.keys()
     post_samples = [posterior_samples[label] for label in labels ]
