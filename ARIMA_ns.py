@@ -29,7 +29,7 @@ def loglikelihood(data,order,parameters,seed):
  
     return llk
 
-def prior_parameters(prior_type:str,order:tuple,scale,prior_bounds={}):
+def prior_parameters(prior_type:str,order:tuple,scale,intercept_mean,intercept_scale,prior_bounds={}):
     """A helper function to return the prior parameters dictionary to be used in Nested Sampling
     Arguments:
      prior_type: type of prior distribution to be used - 'normal' or 'uniform'
@@ -46,7 +46,7 @@ def prior_parameters(prior_type:str,order:tuple,scale,prior_bounds={}):
         prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':scale}})
      
      prior_params.update({'sigma':{'mean':0,'scale':7}})
-     prior_params.update({'k':{'mean':0,'scale':1}})
+     prior_params.update({'k':{'mean':intercept_mean,'scale':intercept_scale}})
      
     elif prior_type =="uniform":
      if len(prior_bounds)==0:
@@ -68,7 +68,7 @@ class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
  """
- def __init__(self,data,order,prior_type,prior_scale,num_live,num_delete,seed,prior_bounds={}):
+ def __init__(self,data,order,prior_type,prior_scale,intercept_mean,intercept_scale,num_live,num_delete,seed,prior_bounds={}):
   """
   Initializes and runs the Nested Sampling.
   Args:
@@ -82,7 +82,8 @@ class ARIMA_Nested_Sampler:
   """
   self.data = jnp.asarray(data)
   self.order = order
-  
+  self.intercept_mean = intercept_mean
+  self.intercept_scale = intercept_scale
   
   self.num_live = num_live
   self.num_delete = num_delete
@@ -94,7 +95,7 @@ class ARIMA_Nested_Sampler:
   self.prior_type = prior_type
 
 
-  prior_params = prior_parameters(self.prior_type,self.order,self.prior_scale,self.prior_bounds)
+  prior_params = prior_parameters(self.prior_type,self.order,self.prior_scale,self.intercept_mean,self.intercept_scale,self.prior_bounds)
   self.prior_params = prior_params
   self.log_likelihood = loglikelihood(self.data,self.order,self.prior_params,self.seed)
  
