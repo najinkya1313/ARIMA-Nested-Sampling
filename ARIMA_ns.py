@@ -9,7 +9,7 @@ import numpy as np
 import jax
 from ARIMA import ARIMA_fast
 from norm_prior import normal_prior
-
+from fgivenx import plot_lines
 
 
 
