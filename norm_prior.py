@@ -57,7 +57,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
   sigma_particle = 7*jax.random.truncated_normal(sigma_key,1e-5,jnp.inf)
 
   rng_key,k_key = jax.random.split(rng_key)
-  k_particle = 20 * jax.random.normal(k_key)
+  k_particle = 30 * jax.random.normal(k_key)
  
  #Roots calculation
   phi_particles = particles_all[0:p]
