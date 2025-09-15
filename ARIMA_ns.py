@@ -184,12 +184,13 @@ class ARIMA_Nested_Sampler:
     
   
  def fit_model(self,compare=None):
-   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-1],self.posterior_means[0:(self.order[0])],self.posterior_means[self.order[0]:-1],self.seed+2)
+   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-1],self.posterior_means[0:(self.order[0])],self.posterior_means[self.order[0]:-1],self.seed)
+   self.y_fit = y_fit
    if compare is not None:
     if compare==True:
       plt.plot(self.data,label='Data')
       plt.plot(y_fit,label=f'ARIMA {self.order} model')
-    
+      return y_fit
     elif type(compare)!= bool:
       raise SyntaxError(f"Invalid value {compare} for compare argument. compare should be == True, False, or None")
     
@@ -198,7 +199,7 @@ class ARIMA_Nested_Sampler:
  
    
    
-    self.y_fit = y_fit
+    
     
     plt.legend()
     plt.xlabel('Time-step')
@@ -207,22 +208,17 @@ class ARIMA_Nested_Sampler:
     return y_fit
 
 
-def ARIMA_model_comparison(data,orders,prior_type,num_live,num_delete,seeds,prior_bounds={}):
-    evidences = []
-    for order,seed in zip(orders,seeds):
-        model = ARIMA_Nested_Sampler(data,order,prior_type,num_live,num_delete,seed,prior_bounds)
-        evidences.append(model.log_evidence)
-    evidences = jnp.array(evidences)
-    x = range(len(orders))
-    max_index = jnp.where(evidences==max(evidences))[0][0]
-    print(max_index)
-    plt.plot(x,evidences,'o')
-    plt.plot(x[max_index],evidences[max_index],marker='*',markersize=10,color='red')
-    plt.axvline(x=x[max_index],c='black',linestyle='--',alpha=0.6)
-    plt.xticks(ticks=range(len(orders)),labels=[str(order) for order in orders])
-    plt.xlabel('ARIMA (p,d,q) order')
-    plt.ylabel('Log Evidence')
-    plt.title('Model Comparison Plot')
-    return evidences
+def posterior_fits(self,num_samples,x,function,prediction_function=None,num_predict=None,x_predict=None,predict_data=None):
+    posterior_samples = self.posterior_samples.sample(num_samples)
+    labels = self.prior_params.keys()
+    post_samples = [posterior_samples[label] for label in labels ]
+    final_samples = list(zip(*post_samples))
+    fig,axes = plt.subplots(1,figsize=(12,8))
+    self.axes = axes
+    plot_lines(function,x,final_samples,ax=axes,color='red')
+    axes.plot(x,self.data)
+    if prediction_function is not None:
+        plot_lines(prediction_function,x_predict,final_samples,ax=axes,color='green')
+        axes.plot(x_predict,predict_data)
 
 
