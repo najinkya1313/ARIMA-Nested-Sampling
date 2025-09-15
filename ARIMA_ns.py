@@ -188,7 +188,7 @@ class ARIMA_Nested_Sampler:
     
   
  def fit_model(self,compare=None):
-   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-1],self.posterior_means[0:(self.order[0])],self.posterior_means[self.order[0]:-1],self.seed)
+   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-2],self.posterior_means[-1],self.posterior_means[0:p],self.posterior_means[p:p+q],self.seed)
    self.y_fit = y_fit
    if compare is not None:
     if compare==True:
