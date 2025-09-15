@@ -20,7 +20,7 @@ def loglikelihood(data,order,parameters,seed):
     def llk(params):
         sigma = params['sigma']
         k = params['k']
-        parameters_modulo_sigma = list(parameters.keys())[:-1]
+        parameters_modulo_sigma_k = list(parameters.keys())[:-2]
         arima_parameters = [params[key] for key in parameters_modulo_sigma]
         phi = arima_parameters[0:p]
         theta = arima_parameters[p:p+q]
