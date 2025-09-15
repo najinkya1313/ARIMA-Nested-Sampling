@@ -46,7 +46,7 @@ def prior_parameters(prior_type:str,order:tuple,scale,prior_bounds={}):
         prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':scale}})
      
      prior_params.update({'sigma':{'mean':0,'scale':7}})
-     prior_params.update({'k':{'mean':0,'scale':30}})
+     prior_params.update({'k':{'mean':0,'scale':10}})
      
     elif prior_type =="uniform":
      if len(prior_bounds)==0:
