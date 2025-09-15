@@ -6,7 +6,11 @@ def normal_prior(rng_key,num_live,prior_params,order):
  p,d,q = order
  prior_params_modsigma = dict(list(prior_params.items())[:-1])
  prior_params_sigma = prior_params['sigma']
+ mean_sigma = prior_params_sigma['mean']
+ scale_sigma = prior_params_sigma['scale']
  prior_params_k = prior_params['k']
+ intercept_mean = prior_params_k['mean']
+ intercept_scale = prior_params_k['scale']
  overall_scale = list(prior_params_modsigma.values())[0]['scale']
  ##-------------------------------------------------Logprior function–------------------------------------------
  def logprior_fn(params):
@@ -32,12 +36,8 @@ def normal_prior(rng_key,num_live,prior_params,order):
 ##For sigma and k:
   x_sig = params["sigma"]
   k = params['k']
-  mean_sigma = prior_params_sigma['mean']
-  scale_sigma = prior_params_sigma['scale']
-  mean_k = prior_params_k['mean']
-  scale_k = prior_params_k['scale']
   logprior_sigma = jax.scipy.stats.truncnorm.logpdf(x_sig,1e-5,jnp.inf,mean_sigma,scale_sigma)
-  logprior_k = jax.scipy.stats.norm.logpdf(k,mean_k,scale_k)
+  logprior_k = jax.scipy.stats.norm.logpdf(k,intercept_mean,intercept_scale)
   logprior = output + logprior_sigma + logprior_k
   return logprior
 
@@ -54,10 +54,10 @@ def normal_prior(rng_key,num_live,prior_params,order):
  
 
   rng_key,sigma_key = jax.random.split(rng_key)
-  sigma_particle = 7*jax.random.truncated_normal(sigma_key,1e-5,jnp.inf)
+  sigma_particle = scale_sigma*(jax.random.truncated_normal(sigma_key,1e-5,jnp.inf) + mean_sigma)
 
   rng_key,k_key = jax.random.split(rng_key)
-  k_particle = jax.random.normal(k_key)
+  k_particle = intercept_scale*(jax.random.normal(k_key) + intercept_mean)
  
  #Roots calculation
   phi_particles = particles_all[0:p]
