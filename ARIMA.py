@@ -4,7 +4,7 @@ from functools import partial
 
 
 @partial(jax.jit, static_argnums=(1,))          # ‘order’ is static
-def ARIMA_fast(data, order, sigma, phi, theta, seed):
+def ARIMA_fast(data, order, sigma,k, phi, theta, seed):
     """
     Vectorised non-seasonal ARIMA(p,d,q) for JAX/XLA.
     """
@@ -22,7 +22,7 @@ def ARIMA_fast(data, order, sigma, phi, theta, seed):
     phi   = jnp.pad(jnp.asarray(phi,   dtype=diff.dtype), (0, p - len(phi)))
     theta = jnp.pad(jnp.asarray(theta, dtype=diff.dtype), (0, q - len(theta)))
 
-    k = (1.0 - phi.sum()) * jnp.mean(diff)
+    
 
     # 3. Initial state ------------------------------------------------------------
     past_y = jnp.full((p,), diff.mean(), dtype=diff.dtype) if p else jnp.empty((0,), diff.dtype)
@@ -82,12 +82,11 @@ def ARIMA_forecast(data,order,sigma,phi,theta,forecast_num,seed):
     
     
     """
-    y_model = ARIMA_fast(data,order,sigma,phi,theta,seed)
+    y_model = ARIMA_fast(data,order,sigma,k,phi,theta,seed)
     p,d,q = order
     phi_coeffs = jnp.array(phi)
     theta_coeffs = jnp.array(theta)
     forecasted_points = []
-    k = (1.0 - jnp.sum(phi_coeffs)) * jnp.mean(data)
     rng_key = jax.random.PRNGKey(seed)
     error_key = jax.random.split(rng_key,forecast_num)
     epsilon_lagged = y_model[-q:] - data[-q:]
