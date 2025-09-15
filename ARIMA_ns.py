@@ -19,11 +19,12 @@ def loglikelihood(data,order,parameters,seed):
     p,d,q = order
     def llk(params):
         sigma = params['sigma']
+        k = params['k']
         parameters_modulo_sigma = list(parameters.keys())[:-1]
         arima_parameters = [params[key] for key in parameters_modulo_sigma]
         phi = arima_parameters[0:p]
         theta = arima_parameters[p:p+q]
-        y_model = ARIMA_fast(data,order,0,phi,theta,seed)
+        y_model = ARIMA_fast(data,order,0,k,phi,theta,seed)
         return jax.scipy.stats.multivariate_normal.logpdf(data,y_model,sigma**2)
  
     return llk
@@ -45,6 +46,7 @@ def prior_parameters(prior_type:str,order:tuple,scale,prior_bounds={}):
         prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':scale}})
      
      prior_params.update({'sigma':{'mean':0,'scale':7}})
+     prior_params.update({'k':{'mean':0,'scale':30}})
      
     elif prior_type =="uniform":
      if len(prior_bounds)==0:
@@ -54,6 +56,7 @@ def prior_parameters(prior_type:str,order:tuple,scale,prior_bounds={}):
      for ma in range(q):
         prior_params.update({f'theta_{ma+1}':prior_bounds[f'theta_{ma+1}']})
      prior_params.update({'sigma':prior_bounds['sigma']})
+     prior_params.update({'k':prior_bounds['k']})
     
     else:
        raise SyntaxError("prior_type should be normal or uniform.")
