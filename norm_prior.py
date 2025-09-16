@@ -8,9 +8,9 @@ def normal_prior(rng_key,num_live,prior_params,order):
  prior_params_sigma = prior_params['sigma']
  mean_sigma = prior_params_sigma['mean']
  scale_sigma = prior_params_sigma['scale']
- prior_params_k = prior_params['mu']
- mu_mean = prior_params_k['mean']
- mu_scale = prior_params_k['scale']
+ prior_params_mu = prior_params['mu']
+ mu_mean = prior_params_mu['mean']
+ mu_scale = prior_params_mu['scale']
  overall_scale = list(prior_params_modsigma.values())[0]['scale']
  ##-------------------------------------------------Logprior function–------------------------------------------
  def logprior_fn(params):
@@ -35,7 +35,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
   
 ##For sigma and k:
   x_sig = params["sigma"]
-  k = params['k']
+  mu = params['mu']
   logprior_sigma = jax.scipy.stats.truncnorm.logpdf(x_sig,1e-5,jnp.inf,mean_sigma,scale_sigma)
   logprior_mu = jax.scipy.stats.norm.logpdf(mu,mu_mean,mu_scale)
   logprior = output + logprior_sigma + logprior_mu
