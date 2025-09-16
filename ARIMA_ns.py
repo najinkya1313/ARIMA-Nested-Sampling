@@ -29,7 +29,7 @@ def loglikelihood(data,order,parameters,seed):
  
     return llk
 
-def prior_parameters(prior_type:str,order:tuple,scale,intercept_mean,intercept_scale,prior_bounds={}):
+def prior_parameters(prior_type:str,order:tuple,scale,mu_mean,mu_scale,prior_bounds={}):
     """A helper function to return the prior parameters dictionary to be used in Nested Sampling
     Arguments:
      prior_type: type of prior distribution to be used - 'normal' or 'uniform'
