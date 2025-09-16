@@ -4,7 +4,10 @@ import jax.numpy as jnp
 
 def normal_prior(rng_key,num_live,prior_params,order):
  p,d,q = order
- prior_params_modsigma = dict(list(prior_params.items())[:-2])
+ phi_names = [f"phi_{i+1}" for i in range(p)]
+ theta_names = [f"theta_{j+1}" for j in range(q)]
+ prior_params_modsigma = {name: prior_params[name] for name in phi_names + theta_names}
+ print(prior_params_modsigma.keys())
  prior_params_sigma = prior_params['sigma']
  mean_sigma = prior_params_sigma['mean']
  scale_sigma = prior_params_sigma['scale']
@@ -12,10 +15,11 @@ def normal_prior(rng_key,num_live,prior_params,order):
  mu_mean = prior_params_mu['mean']
  mu_scale = prior_params_mu['scale']
  overall_scale = list(prior_params_modsigma.values())[0]['scale']
+ print(overall_scale)
  ##-------------------------------------------------Logprior function–------------------------------------------
  def logprior_fn(params):
   logprior = 0.0
-  parameters_mod_sigma = jnp.array([-params[key] for key in prior_params_modsigma.keys()])
+  parameters_mod_sigma = jnp.array([params[key] for key in prior_params_modsigma.keys()])
   ar_parameters = jnp.flip(parameters_mod_sigma[0:p])
   ma_parameters = jnp.flip(parameters_mod_sigma[p:p+q])
   const = jnp.ones(1)
