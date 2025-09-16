@@ -89,7 +89,7 @@ def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,seed):
     forecasted_points = []
     rng_key = jax.random.PRNGKey(seed)
     error_key = jax.random.split(rng_key,forecast_num)
-    epsilon_lagged = y_model[-q:] - data[-q:]
+    epsilon_lagged = data[-q:] - y_model[-q:]
     k = mu * (1- jnp.sum(phi_coeffs))
     while len(forecasted_points)<forecast_num:
         for key in error_key:
