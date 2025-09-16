@@ -7,7 +7,6 @@ def normal_prior(rng_key,num_live,prior_params,order):
  phi_names = [f"phi_{i+1}" for i in range(p)]
  theta_names = [f"theta_{j+1}" for j in range(q)]
  prior_params_modsigma = {name: prior_params[name] for name in phi_names + theta_names}
- print(prior_params_modsigma.keys())
  prior_params_sigma = prior_params['sigma']
  mean_sigma = prior_params_sigma['mean']
  scale_sigma = prior_params_sigma['scale']
@@ -15,7 +14,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
  mu_mean = prior_params_mu['mean']
  mu_scale = prior_params_mu['scale']
  overall_scale = list(prior_params_modsigma.values())[0]['scale']
- print(overall_scale)
+ 
  ##-------------------------------------------------Logprior function–------------------------------------------
  def logprior_fn(params):
   logprior = 0.0
@@ -123,7 +122,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
    for key,vals in new_particles_filtered.items():
      new_arr = jnp.concatenate([particles[key],vals])
      particles.update({key:new_arr})
-   print(f"Valid particles: {len(particles['sigma'])}")
+   
  particles = {label:value[:num_live] for label,value in particles.items()}
    
  return particles,logprior_fn
