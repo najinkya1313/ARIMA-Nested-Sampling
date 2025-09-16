@@ -19,12 +19,12 @@ def loglikelihood(data,order,parameters,seed):
     p,d,q = order
     def llk(params):
         sigma = params['sigma']
-        k = params['k']
+        mu = params['mu']
         parameters_modulo_sigma_k = list(parameters.keys())[:-2]
         arima_parameters = [params[key] for key in parameters_modulo_sigma_k]
         phi = arima_parameters[0:p]
         theta = arima_parameters[p:p+q]
-        y_model = ARIMA_fast(data,order,0,k,phi,theta,seed)
+        y_model = ARIMA_fast(data,order,0,mu,phi,theta,seed)
         return jax.scipy.stats.multivariate_normal.logpdf(data,y_model,sigma**2)
  
     return llk
@@ -46,7 +46,7 @@ def prior_parameters(prior_type:str,order:tuple,scale,intercept_mean,intercept_s
         prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':scale}})
      
      prior_params.update({'sigma':{'mean':0,'scale':7}})
-     prior_params.update({'k':{'mean':intercept_mean,'scale':intercept_scale}})
+     prior_params.update({'mu':{'mean':mu_mean,'scale':mu_scale}})
      
     elif prior_type =="uniform":
      if len(prior_bounds)==0:
@@ -56,7 +56,7 @@ def prior_parameters(prior_type:str,order:tuple,scale,intercept_mean,intercept_s
      for ma in range(q):
         prior_params.update({f'theta_{ma+1}':prior_bounds[f'theta_{ma+1}']})
      prior_params.update({'sigma':prior_bounds['sigma']})
-     prior_params.update({'k':prior_bounds['k']})
+     prior_params.update({'mu':prior_bounds['k']})
     
     else:
        raise SyntaxError("prior_type should be normal or uniform.")
@@ -68,7 +68,7 @@ class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
  """
- def __init__(self,data,order,prior_type,prior_scale,intercept_mean,intercept_scale,num_live,num_delete,seed,prior_bounds={}):
+ def __init__(self,data,order,prior_type,prior_scale,mu_mean,mu_scale,num_live,num_delete,seed,prior_bounds={}):
   """
   Initializes and runs the Nested Sampling.
   Args:
@@ -82,8 +82,8 @@ class ARIMA_Nested_Sampler:
   """
   self.data = jnp.asarray(data)
   self.order = order
-  self.intercept_mean = intercept_mean
-  self.intercept_scale = intercept_scale
+  self.mu_mean = mu_mean
+  self.mu_scale = mu_scale
   
   self.num_live = num_live
   self.num_delete = num_delete
@@ -94,7 +94,7 @@ class ARIMA_Nested_Sampler:
   self.prior_type = prior_type
 
 
-  prior_params = prior_parameters(self.prior_type,self.order,self.prior_scale,self.intercept_mean,self.intercept_scale,self.prior_bounds)
+  prior_params = prior_parameters(self.prior_type,self.order,self.prior_scale,self.mu_mean,self.mu_scale,self.prior_bounds)
   self.prior_params = prior_params
   self.log_likelihood = loglikelihood(self.data,self.order,self.prior_params,self.seed)
  
