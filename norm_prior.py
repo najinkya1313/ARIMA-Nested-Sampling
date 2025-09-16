@@ -103,7 +103,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
  def particles_filter(unfiltered_particles,initlogprior):
    
    
-   mask = jnp.where(initlogprior!=-jnp.inf)
+   mask = initlogprior != -jnp.inf
    
    for key,vals in unfiltered_particles.items():
      unfiltered_particles.update({key:vals[mask]})
