@@ -101,7 +101,7 @@ def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,seed):
          if p==0:
             y_phis = jnp.empty(p)
          y_thetas = theta_coeffs * jnp.flip(epsilon_lagged)
-         epsilon_t = sigma* jax.random.normal(key)
+         epsilon_t = sigma* jax.random.normal(key,shape=())
          y_forecast = k + jnp.sum(y_phis) + jnp.sum(y_thetas) + epsilon_t
          y_forecast_arr = jnp.array([y_forecast])
          data = jnp.concatenate([data,y_forecast_arr])
