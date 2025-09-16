@@ -8,9 +8,9 @@ def normal_prior(rng_key,num_live,prior_params,order):
  prior_params_sigma = prior_params['sigma']
  mean_sigma = prior_params_sigma['mean']
  scale_sigma = prior_params_sigma['scale']
- prior_params_k = prior_params['k']
- intercept_mean = prior_params_k['mean']
- intercept_scale = prior_params_k['scale']
+ prior_params_k = prior_params['mu']
+ mu_mean = prior_params_k['mean']
+ mu_scale = prior_params_k['scale']
  overall_scale = list(prior_params_modsigma.values())[0]['scale']
  ##-------------------------------------------------Logprior function–------------------------------------------
  def logprior_fn(params):
@@ -37,15 +37,15 @@ def normal_prior(rng_key,num_live,prior_params,order):
   x_sig = params["sigma"]
   k = params['k']
   logprior_sigma = jax.scipy.stats.truncnorm.logpdf(x_sig,1e-5,jnp.inf,mean_sigma,scale_sigma)
-  logprior_k = jax.scipy.stats.norm.logpdf(k,intercept_mean,intercept_scale)
-  logprior = output + logprior_sigma + logprior_k
+  logprior_mu = jax.scipy.stats.norm.logpdf(mu,mu_mean,mu_scale)
+  logprior = output + logprior_sigma + logprior_mu
   return logprior
 
 ##---------------------------------------------------Particle sampler-----------------------------------------------:
  @jax.jit
  def prior_sample(rng_key):
   
-  init_keys = jax.random.split(rng_key, len(prior_params)-1)
+  init_keys = jax.random.split(rng_key, len(prior_params)-2)
   param_labels = [label for label in prior_params_modsigma.keys()]
   phi_labels = param_labels[0:p]
   theta_labels = param_labels[p:p+q]
@@ -56,8 +56,8 @@ def normal_prior(rng_key,num_live,prior_params,order):
   rng_key,sigma_key = jax.random.split(rng_key)
   sigma_particle = scale_sigma*(jax.random.truncated_normal(sigma_key,1e-5,jnp.inf)) + mean_sigma
 
-  rng_key,k_key = jax.random.split(rng_key)
-  k_particle = intercept_mean + intercept_scale*(jax.random.normal(k_key))
+  rng_key,mu_key = jax.random.split(rng_key)
+  mu_particle = mu_mean + mu_scale*(jax.random.normal(mu_key))
  
  #Roots calculation
   phi_particles = particles_all[0:p]
@@ -77,7 +77,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
     for theta_label,theta_particle in zip(theta_labels,theta_particles):
       params.update({theta_label:theta_particle})
     params.update({'sigma':sigma_particle})
-    params.update({'k':k_particle})
+    params.update({'mu':mu_particle})
     return params
   def invalid_point(roots):
     for phi_label,phi_particle in zip(phi_labels,phi_particles):
@@ -85,7 +85,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
     for theta_label,theta_particle in zip(theta_labels,theta_particles):
       params.update({theta_label:0.})
     params.update({'sigma':0.})
-    params.update({'k':0.})
+    params.update({'mu':0.})
     return params
   
   filtered_params = jax.lax.cond(jnp.all(abs(roots)>1),valid_point,invalid_point,roots)
