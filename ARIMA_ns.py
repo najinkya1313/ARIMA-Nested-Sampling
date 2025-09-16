@@ -17,13 +17,17 @@ from fgivenx import plot_lines
 
 def loglikelihood(data,order,parameters,seed):
     p,d,q = order
+    phi_keys = [f'phi_{i+1}' for i in range(p)]
+    theta_keys = [f'theta_{j+1}' for j in range(q)]
+    
     def llk(params):
         sigma = params['sigma']
         mu = params['mu']
-        parameters_modulo_sigma_k = list(parameters.keys())[:-2]
-        arima_parameters = [params[key] for key in parameters_modulo_sigma_k]
-        phi = arima_parameters[0:p]
-        theta = arima_parameters[p:p+q]
+        phi = jnp.array([params[k] for k in phi_keys]) if p > 0 else jnp.array([])
+        theta = jnp.array([params[k] for k in theta_keys]) if q > 0 else jnp.array([])
+        if mu.shape != ():
+            mu = mu.reshape(())
+        
         y_model = ARIMA_fast(data,order,0,mu,phi,theta,seed)
         return jax.scipy.stats.multivariate_normal.logpdf(data,y_model,sigma**2)
  
