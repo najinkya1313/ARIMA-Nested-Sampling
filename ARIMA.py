@@ -93,7 +93,6 @@ def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,seed):
     k = mu * (1- jnp.sum(phi_coeffs))
     while len(forecasted_points)<forecast_num:
      for key in error_key:
-         
          y_phis = phi_coeffs*jnp.flip(data[-p:])
          
          if q==0:
