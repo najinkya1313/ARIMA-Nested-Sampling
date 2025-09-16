@@ -91,7 +91,8 @@ def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,seed):
     error_key = jax.random.split(rng_key,forecast_num)
     epsilon_lagged = data[-q:] - y_model[-q:]
     k = mu * (1- jnp.sum(phi_coeffs))
-    for key in error_key:
+    while len(forecasted_points)<forecast_num:
+     for key in error_key:
          
          y_phis = phi_coeffs*jnp.flip(data[-p:])
          
@@ -100,13 +101,10 @@ def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,seed):
          if p==0:
             y_phis = jnp.empty(p)
          y_thetas = theta_coeffs * jnp.flip(epsilon_lagged)
-         epsilon_t = sigma* jax.random.normal(key,shape=())
+         epsilon_t = sigma* jax.random.normal(key)
          y_forecast = k + jnp.sum(y_phis) + jnp.sum(y_thetas) + epsilon_t
-         y_forecast_arr = jnp.array([y_forecast])
-         if q > 0:
-            epsilon_lagged = jnp.concatenate([jnp.array([epsilon_t]), epsilon_lagged[:-1]])
          forecasted_points.append(y_forecast)
-         jnp.concatenate([y_model,jnp.array([y_forecast])])
+    
     
     forecasted_points = jnp.array(forecasted_points)
     return forecasted_points
