@@ -4,7 +4,7 @@ from functools import partial
 
 
 @partial(jax.jit, static_argnums=(1,))          # ‘order’ is static
-def ARIMA_fast(data, order, sigma,k, phi, theta, seed):
+def ARIMA_fast(data, order, sigma,mu, phi, theta, seed):
     """
     Vectorised non-seasonal ARIMA(p,d,q) for JAX/XLA.
     """
@@ -21,10 +21,7 @@ def ARIMA_fast(data, order, sigma,k, phi, theta, seed):
     # 2. Parameters / intercept ---------------------------------------------------
     phi   = jnp.pad(jnp.asarray(phi,   dtype=diff.dtype), (0, p - len(phi)))
     theta = jnp.pad(jnp.asarray(theta, dtype=diff.dtype), (0, q - len(theta)))
-    # coerce k to scalar shape ()
-    k = jnp.asarray(k, dtype=diff.dtype)
-    if k.shape != ():
-        k = k.reshape(())
+    k = mu * (1- jnp.sum(phi))
     
 
     # 3. Initial state ------------------------------------------------------------
