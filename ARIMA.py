@@ -21,7 +21,10 @@ def ARIMA_fast(data, order, sigma,k, phi, theta, seed):
     # 2. Parameters / intercept ---------------------------------------------------
     phi   = jnp.pad(jnp.asarray(phi,   dtype=diff.dtype), (0, p - len(phi)))
     theta = jnp.pad(jnp.asarray(theta, dtype=diff.dtype), (0, q - len(theta)))
-
+    # coerce k to scalar shape ()
+    k = jnp.asarray(k, dtype=diff.dtype)
+    if k.shape != ():
+        k = k.reshape(())
     
 
     # 3. Initial state ------------------------------------------------------------
