@@ -89,20 +89,24 @@ def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,seed):
     forecasted_points = []
     rng_key = jax.random.PRNGKey(seed)
     error_key = jax.random.split(rng_key,forecast_num)
-    epsilon_lagged = data[-q:] - y_model[-q:]
+    
     k = mu * (1- jnp.sum(phi_coeffs))
     while len(forecasted_points)<forecast_num:
-     for key in error_key:
-         y_phis = phi_coeffs*jnp.flip(data[-p:])
-         
-         if q==0:
-            epsilon_lagged = jnp.empty(q)
-         if p==0:
-            y_phis = jnp.empty(p)
-         y_thetas = theta_coeffs * jnp.flip(epsilon_lagged)
-         epsilon_t = sigma* jax.random.normal(key)
-         y_forecast = k + jnp.sum(y_phis) + jnp.sum(y_thetas) + epsilon_t
-         forecasted_points.append(y_forecast)
+        epsilon_lagged = data[-q:] - y_model[-q:]
+        for key in error_key:
+            y_phis = phi_coeffs*jnp.flip(data[-p:])
+            if q==0:
+                epsilon_lagged = jnp.empty(q)
+            if p==0:
+                y_phis = jnp.empty(p)
+            y_thetas = theta_coeffs * jnp.flip(epsilon_lagged)
+            epsilon_t = sigma * jax.random.normal(key)
+            y_forecast = k + jnp.sum(y_phis) + jnp.sum(y_thetas) + epsilon_t
+            forecasted_points.append(y_forecast)
+            y_forecast_arr = jnp.array([y_forecast])
+            data = jnp.concatenate([data,y_forecast_arr])
+            y_model = jnp.concatenate([y_model,y_forecast_arr])
+            
     
     
     forecasted_points = jnp.array(forecasted_points)
