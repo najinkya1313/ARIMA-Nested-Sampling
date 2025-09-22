@@ -94,7 +94,8 @@ def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,seed):
     while len(forecasted_points)<forecast_num:
         epsilon_lagged = data[-q:] - y_model[-q:]
         for key in error_key:
-            y_phis = phi_coeffs*jnp.flip(data[-p:])
+            if p:
+                y_phis = phi_coeffs*jnp.flip(data[-p:])
             if q==0:
                 epsilon_lagged = jnp.empty(q)
             if p==0:
