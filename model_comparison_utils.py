@@ -96,7 +96,7 @@ def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title='None'):
             plt.text(i, j, f"{heatmap_data[j, i]:.2f}±{heatmap_err[j, i]:.2f}", 
                      ha='center', va='center', color='black', fontsize=10)
  if title:
-     plt.title(title,fontisze=20)
+     plt.title(title,fontsize=20)
  else:
      plt.title(r'Log Evidence Heatmap',fontsize=20)
  
