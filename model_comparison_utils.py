@@ -18,7 +18,7 @@ def ARIMA_model_comparison(data,orders,prior_type,num_live,num_delete,seeds,scal
         evidence_arr = np.array(evidences)
         index = np.where(evidence_arr==max(evidence_arr))[0][0]
         print("----------------------x-------------------x---------------------x------")
-        print(f"Evidence : {model.log_evidence} ; Error : {model.log_evidence_err}")
+        print(f"Evidence for {order} : {model.log_evidence} ; Error : {model.log_evidence_err}")
         print(f"Highest Evidence so far : {max(evidences)} for order : {order_done[index]}")
         print("----------------------x-------------------x----------------------x-----")
   
@@ -54,7 +54,7 @@ def load_evidence_file(file_name):
     mixed_evidences = evidences,evidence_errs
     return mixed_evidences
 
-def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title='None'):
+def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None):
  evidences,evidence_err = mixed_evidences
  p_values = np.arange(0, max_order+1)
  q_values = np.arange(0, max_order+1)
