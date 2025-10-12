@@ -15,7 +15,7 @@ from fgivenx import plot_lines
 
 
 
-def loglikelihood(data,order,parameters,seed):
+def loglikelihood(data,order,seed):
     p,d,q = order
     phi_keys = [f'phi_{i+1}' for i in range(p)]
     theta_keys = [f'theta_{j+1}' for j in range(q)]
@@ -100,7 +100,7 @@ class ARIMA_Nested_Sampler:
 
   prior_params = prior_parameters(self.prior_type,self.order,self.prior_scale,self.mu_mean,self.mu_scale,self.prior_bounds)
   self.prior_params = prior_params
-  self.log_likelihood = loglikelihood(self.data,self.order,self.prior_params,self.seed)
+  self.log_likelihood = loglikelihood(self.data,self.order,self.seed)
  
   
     
