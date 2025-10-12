@@ -54,7 +54,7 @@ def load_evidence_file(file_name):
     mixed_evidences = evidences,evidence_errs
     return mixed_evidences
 
-def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None):
+def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None,invert=False):
  evidences,evidence_err = mixed_evidences
  p_values = np.arange(0, max_order+1)
  q_values = np.arange(0, max_order+1)
@@ -82,7 +82,10 @@ def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None):
  vmax = max(Z_flat)
 
  plt.figure(figsize=(17,17))
- plt.imshow(heatmap_data, origin='lower', cmap='plasma',vmin=vmin,vmax=vmax)
+ if invert=False:
+  plt.imshow(heatmap_data, origin='lower', cmap='plasma',vmin=vmin,vmax=vmax)
+ else:
+  plt.imshow(heatmap_data, origin='lower', cmap='plasma_r',vmin=vmin,vmax=vmax)
  plt.colorbar(label='Log Evidence')
  plt.xticks(np.arange(0,max_order+1))
  plt.yticks(np.arange(0,max_order+1))
