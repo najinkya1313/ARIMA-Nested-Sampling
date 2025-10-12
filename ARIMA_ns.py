@@ -72,7 +72,7 @@ class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
  """
- def __init__(self,data,order,prior_type,prior_scale,mu_mean,mu_scale,num_live,num_delete,seed,prior_bounds={}):
+ def __init__(self,data,order,mu_mean,mu_scale,num_live,num_delete,seed,prior_scale=1,prior_type="normal",prior_bounds={}):
   """
   Initializes and runs the Nested Sampling.
   Args:
