@@ -135,6 +135,10 @@ class ARIMA_Nested_Sampler:
       live, dead_info = step_fn(subkey, live)
       dead.append(dead_info)
       pbar.update(self.num_delete)
+      ##Adding self-termination if algorithm failing to converge:
+      if time.time()-ns_start>300:
+          print("Failed to converge, terminating...")
+          break
     
   dead = blackjax.ns.utils.finalise(live,dead)
   ns_time = time.time() - ns_start
