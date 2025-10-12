@@ -106,7 +106,7 @@ class ARIMA_Nested_Sampler:
     
   print(f"Running Nested Sampling for fitting ARIMA {self.order} model...")
   num_dims = len(self.prior_params)
-  num_inner_steps = num_dims * 5
+  num_inner_steps = num_dims * 10
   p,d,q = self.order
   if num_dims!=(p+q+2):
       raise ValueError("Number of parameters in prior_bounds inconsistent with ARIMA order.")
@@ -131,11 +131,8 @@ class ARIMA_Nested_Sampler:
     
   with tqdm.tqdm(desc="Dead points", unit=" dead points") as pbar:
     while not live.logZ_live - live.logZ < -3:  # Convergence criterion
-      print('test1')
       rng_key, subkey = jax.random.split(rng_key, 2)
-      print('test2')
       live, dead_info = step_fn(subkey, live)
-      print('test3')
       dead.append(dead_info)
       pbar.update(self.num_delete)
       ##Adding self-termination if algorithm failing to converge:
