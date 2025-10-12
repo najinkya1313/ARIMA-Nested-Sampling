@@ -82,7 +82,7 @@ def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None,invert
  vmax = max(Z_flat)
 
  plt.figure(figsize=(17,17))
- if invert=False:
+ if invert==False:
   plt.imshow(heatmap_data, origin='lower', cmap='plasma',vmin=vmin,vmax=vmax)
  else:
   plt.imshow(heatmap_data, origin='lower', cmap='plasma_r',vmin=vmin,vmax=vmax)
