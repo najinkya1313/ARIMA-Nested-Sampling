@@ -131,8 +131,11 @@ class ARIMA_Nested_Sampler:
     
   with tqdm.tqdm(desc="Dead points", unit=" dead points") as pbar:
     while not live.logZ_live - live.logZ < -3:  # Convergence criterion
+      print('test1')
       rng_key, subkey = jax.random.split(rng_key, 2)
+      print('test2')
       live, dead_info = step_fn(subkey, live)
+      print('test3')
       dead.append(dead_info)
       pbar.update(self.num_delete)
       ##Adding self-termination if algorithm failing to converge:
