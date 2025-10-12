@@ -106,7 +106,7 @@ class ARIMA_Nested_Sampler:
     
   print(f"Running Nested Sampling for fitting ARIMA {self.order} model...")
   num_dims = len(self.prior_params)
-  num_inner_steps = num_dims * 10
+  num_inner_steps = num_dims * 6
   p,d,q = self.order
   if num_dims!=(p+q+2):
       raise ValueError("Number of parameters in prior_bounds inconsistent with ARIMA order.")
