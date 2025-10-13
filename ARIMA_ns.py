@@ -190,7 +190,10 @@ class ARIMA_Nested_Sampler:
     axes = self.posterior_samples.plot_2d(self.columns, kinds=kinds, label='Posterior')
     plt.suptitle("Posterior Distributions")
     
-    
+ def get_mean_forecasts(self):
+     y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-2],self.posterior_means[-1],self.posterior_means[0:p],self.posterior_means[p:p+q],self.seed)
+     return y_fit
+     
   
  def fit_model(self,compare=None):
    p,d,q = self.order
