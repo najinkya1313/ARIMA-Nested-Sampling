@@ -6,12 +6,12 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
 
-def ARIMA_model_comparison(data,orders,num_live,num_delete,seeds,mu_mean=0,mu_scale=1,file_name=None,prior_bounds={}):
+def ARIMA_model_comparison(data,orders,num_live,num_delete,seeds,mu_mean=0,mu_scale=1,prior_scale=1,file_name=None,prior_bounds={}):
     evidences = []
     evidence_err = []
     order_done = []
     for order,seed in zip(orders,seeds):
-        model = ARIMA_Nested_Sampler(data,order,mu_mean,mu_scale,num_live,num_delete,seed,prior_bounds=prior_bounds)
+        model = ARIMA_Nested_Sampler(data,order,mu_mean,mu_scale,num_live,num_delete,seed,prior_bounds=prior_bounds,prior_scale=prior_scale)
         evidences.append(model.log_evidence)
         evidence_err.append(model.log_evidence_err)
         order_done.append(order)
