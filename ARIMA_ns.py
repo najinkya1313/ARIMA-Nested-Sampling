@@ -204,7 +204,7 @@ class ARIMA_Nested_Sampler:
     if compare==True:
       plt.plot(self.data,label='Data')
       plt.plot(y_fit,label=f'ARIMA {self.order} model')
-      return y_fit
+     
     elif type(compare)!= bool:
       raise SyntaxError(f"Invalid value {compare} for compare argument. compare should be == True, False, or None")
     
@@ -219,21 +219,41 @@ class ARIMA_Nested_Sampler:
     plt.xlabel('Time-step')
     plt.ylabel('Value')
     plt.show()
-    return y_fit
+    
 
 
- def posterior_fits(self,num_samples,x,function,prediction_function=None,num_predict=None,x_predict=None,predict_data=None):
-    posterior_samples = self.posterior_samples.sample(num_samples)
-    labels = self.prior_params.keys()
-    post_samples = [posterior_samples[label] for label in labels ]
-    final_samples = list(zip(*post_samples))
-    self.final_samples = final_samples
-    fig,axes = plt.subplots(1,figsize=(12,8))
-    self.axes = axes
-    plot_lines(function,x,final_samples,ax=axes,color='red')
-    axes.plot(x,self.data)
-    if prediction_function is not None:
-        plot_lines(prediction_function,x_predict,final_samples,ax=axes,color='green')
-        axes.plot(x_predict,predict_data)
+def one_step_rolling(data,split_indices,num_forecast,order,seed,mu_mean=0,mu_scale=1):
+    lower,upper = split_indices
+    train_data = data[lower:upper]
+    forecasted_points = []
+    for i in range(num_forecast):
+        p,d,q = order
+        train_data = list(train_data)
+        model = ARIMA_Nested_Sampler(train_data,order,mu_mean,mu_scale,100,50,seed)
+        y_predicted = list(model.get_mean_forecasts())
+        residuals = jnp.array(train_data) - jnp.array(y_predicted)
+        posterior_means = model.posterior_means
+        
+        phi = posterior_means[0:p]
+        theta = posterior_means[p:p+q]
+        sigma = posterior_means[-2]
+        mu = posterior_means[-1]
+        if p==0:
+            phi=0
+        if q==0:
+            theta=0
+        phi_part = jnp.array(phi) * jnp.flip(jnp.array(train_data[-p:]))
+        theta_part = jnp.array(theta) * jnp.flip(residuals[-q:])
+        k = mu * (1- jnp.sum(jnp.array(phi)))
+        error_key = jax.random.PRNGKey(seed+i)
+        epsilon_t = sigma * jax.random.normal(error_key)
+
+        y_forecast = k + jnp.sum(phi_part) + jnp.sum(theta_part) + epsilon_t
+        y_predicted.append(y_forecast)
+        train_data.append(data[upper+i+1])
+        forecasted_points.append(y_forecast)
+        print(f"Predicted value : {y_forecast}; Observed value {data[upper+i+1]}")
+    return forecasted_points
+        
 
 
