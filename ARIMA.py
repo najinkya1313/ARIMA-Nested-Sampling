@@ -112,3 +112,37 @@ def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,seed):
     
     forecasted_points = jnp.array(forecasted_points)
     return forecasted_points
+
+def one_step_rolling(data,split_indices,num_forecast,order,seed,mu_mean=0,mu_scale=1):
+    lower,upper = split_indices
+    train_data = data[lower:upper]
+    forecasted_points = []
+    for i in range(num_forecast):
+        p,d,q = order
+        train_data = list(train_data)
+        model = ARIMA_Nested_Sampler(train_data,order,mu_mean,mu_scale,100,50,seed)
+        y_predicted = list(model.get_mean_forecasts())
+        residuals = jnp.array(train_data) - jnp.array(y_predicted)
+        posterior_means = model.posterior_means
+        
+        phi = posterior_means[0:p]
+        theta = posterior_means[p:p+q]
+        sigma = posterior_means[-2]
+        mu = posterior_means[-1]
+        if p==0:
+            phi=0
+        if q==0:
+            theta=0
+        phi_part = jnp.array(phi) * jnp.flip(jnp.array(train_data[-p:]))
+        theta_part = jnp.array(theta) * jnp.flip(residuals[-q:])
+        k = mu * (1- jnp.sum(jnp.array(phi)))
+        error_key = jax.random.PRNGKey(seed+i)
+        epsilon_t = sigma * jax.random.normal(error_key)
+
+        y_forecast = k + jnp.sum(phi_part) + jnp.sum(theta_part) + epsilon_t
+        y_predicted.append(y_forecast)
+        train_data.append(data[upper+i+1])
+        forecasted_points.append(y_forecast)
+        print(f"Predicted value : {y_forecast}; Observed value {data[upper+i+1]}")
+    return forecasted_points
+        
