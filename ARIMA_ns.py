@@ -72,7 +72,7 @@ class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
  """
- def __init__(self,data,order,mu_mean,mu_scale,num_live,num_delete,seed,prior_scale=1,prior_type="normal",prior_bounds={}):
+ def __init__(self,data,order,mu_mean,mu_scale,num_live,num_delete,seed,inner_steps_factor=6,prior_scale=1,prior_type="normal",prior_bounds={}):
   """
   Initializes and runs the Nested Sampling.
   Args:
@@ -106,7 +106,7 @@ class ARIMA_Nested_Sampler:
     
   print(f"Running Nested Sampling for fitting ARIMA {self.order} model...")
   num_dims = len(self.prior_params)
-  num_inner_steps = num_dims * 6
+  num_inner_steps = num_dims * inner_steps_factor
   p,d,q = self.order
   if num_dims!=(p+q+2):
       raise ValueError("Number of parameters in prior_bounds inconsistent with ARIMA order.")
