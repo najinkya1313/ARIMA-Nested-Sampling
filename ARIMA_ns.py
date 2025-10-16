@@ -7,7 +7,7 @@ import tqdm
 import matplotlib.pyplot as plt
 import numpy as np
 import jax
-from ARIMA import ARIMA_fast
+from ARIMA import ARIMA_fast,ARIMA_forecast
 from norm_prior import normal_prior
 from fgivenx import plot_lines
 
@@ -219,6 +219,66 @@ class ARIMA_Nested_Sampler:
     plt.xlabel('Time-step')
     plt.ylabel('Value')
     plt.show()
+
+def direct_forecast(self,overall_time,overall_data,final_index,num_forecast,n_samples,**kwargs):
+   samples = self.posterior_samples.sample(n_samples)
+   p,d,q = self.order
+   ar_samples = []
+   ma_samples = []
+   sigma_samples = []
+   mu_samples = []
+   for ar in range(p):
+      ar_samples.append(samples[f'phi_{ar}'])
+   for ma in range(q):
+      ma_samples.append(samples[f'theta_{ma}'])
+    
+   sigma_samples.append(samples['sigma'])
+   mu_samples.append(samples['mu'])
+   if len(ar_samples)==0:
+      posteriors = [(ma,sigma,mu) for ma,sigma,mu in zip(ma_samples,sigma_samples,mu_samples)]
+   elif len(ma_samples)==0:
+      posteriors = [(ar,sigma,mu) for ar,sigma,mu in zip(ar_samples,sigma_samples,mu_samples)]
+   else:
+      posteriors = [(ar,ma,sigma,mu) for ar,ma,sigma,mu in zip(ar_samples,ma_samples,sigma_samples,mu_samples)]
+    
+   def arima_func(x,params):
+      phis = params[0:p]
+      thetas = params[p:p+q]
+      sigma = params[-2]
+      mu = params[-1]
+      y_model = ARIMA_fast(self.data,self.order,sigma,mu,phis,thetas,self.seed)
+      return y_model
+   
+   def arima_forecast(x,params):
+      phis = params[0:p]
+      thetas = params[p:p+q]
+      sigma = params[-2]
+      mu = params[-1]
+      y_forecasted = ARIMA_forecast(self.data,self.order,sigma,mu,phis,thetas,num_forecast,self.seed)
+      return y_forecasted
+   
+   fig,axes = plt.figure(1,figsize=(11,6))
+   title = kwargs.get("title", "Forecast Plot")
+   xlabel = kwargs.get("xlabel", "Time")
+   ylabel = kwargs.get("ylabel", "Value")
+   title_fontsize = kwargs.get("title_fontsize", 14)
+   label_fontsize = kwargs.get("label_fontsize", 12)
+   
+
+   plot_lines(arima_func,overall_time[:final_index],posteriors,ax=axes,color='red')
+   plot_lines(arima_forecast,overall_time[final_index:final_index+num_forecast],posteriors,ax=axes,color='green')
+   axes.plot(overall_time[:final_index],self.data,color='black',label='Training Data')
+   axes.plot(overall_time[final_index:final_index+num_forecast],overall_data[final_index:final_index+num_forecast],color='black',marker='+',linewidth=0,ms=8,label='Observed Data')
+   plt.grid()
+   axes.set_xlabel(xlabel,fontsize=label_fontsize)
+   axes.set_ylabel(ylabel,fontsize=label_fontsize)
+   plt.title(title,fontsize=title_fontsize)
+   plt.legend()
+
+    
+
+   
+   
     
 
 
@@ -255,5 +315,3 @@ def one_step_rolling(data,split_indices,num_forecast,order,seed,mu_mean=0,mu_sca
         print(f"Predicted value : {y_forecast}; Observed value {data[upper+i+1]}")
     return forecasted_points
         
-
-
