@@ -257,7 +257,7 @@ class ARIMA_Nested_Sampler:
       y_forecasted = ARIMA_forecast(self.data,self.order,sigma,mu,phis,thetas,num_forecast,self.seed)
       return y_forecasted
    
-   fig,axes = plt.figure(1,figsize=(11,6))
+   fig,axes = plt.subplots(1,1,figsize=(11,6))
    title = kwargs.get("title", "Forecast Plot")
    xlabel = kwargs.get("xlabel", "Time")
    ylabel = kwargs.get("ylabel", "Value")
