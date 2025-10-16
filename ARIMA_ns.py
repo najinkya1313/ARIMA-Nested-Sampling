@@ -220,7 +220,7 @@ class ARIMA_Nested_Sampler:
     plt.ylabel('Value')
     plt.show()
 
- def direct_forecast(self,overall_time,overall_data,final_index,num_forecast,n_samples,**kwargs):
+ def direct_forecast(self,overall_time,overall_data,lower_index,upper_index,num_forecast,n_samples,**kwargs):
    samples = self.posterior_samples.sample(n_samples)
    p, d, q = self.order
    samples = self.posterior_samples.sample(n_samples)
@@ -266,10 +266,10 @@ class ARIMA_Nested_Sampler:
    label_fontsize = kwargs.get("label_fontsize", 12)
    
 
-   plot_lines(arima_func,overall_time[:final_index],posteriors,ax=axes,color='red')
-   plot_lines(arima_forecast,overall_time[final_index:final_index+num_forecast],posteriors,ax=axes,color='green')
-   axes.plot(overall_time[:final_index],self.data,color='black',label='Training Data')
-   axes.plot(overall_time[final_index:final_index+num_forecast],overall_data[final_index:final_index+num_forecast],color='black',marker='+',linewidth=0,ms=8,label='Observed Data')
+   plot_lines(arima_func,overall_time[lower_index:upper_index],posteriors,ax=axes,color='red')
+   plot_lines(arima_forecast,overall_time[upper_index:upper_index+num_forecast],posteriors,ax=axes,color='green')
+   axes.plot(overall_time[lower_index:upper_index],self.data,color='black',label='Training Data')
+   axes.plot(overall_time[upper_index:upper_index+num_forecast],overall_data[upper_index:upper_index+num_forecast],color='black',marker='+',linewidth=0,ms=8,label='Observed Data')
    plt.grid()
    axes.set_xlabel(xlabel,fontsize=label_fontsize)
    axes.set_ylabel(ylabel,fontsize=label_fontsize)
