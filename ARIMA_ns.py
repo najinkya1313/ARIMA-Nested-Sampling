@@ -233,17 +233,13 @@ class ARIMA_Nested_Sampler:
    posteriors = []
 
    for i in range(n_samples):
-    ar = [ar_samples[j][i] for j in range(p)] if p > 0 else []
-    ma = [ma_samples[j][i] for j in range(q)] if q > 0 else []
-    sigma = sigma_samples[i]
-    mu = mu_samples[i]
+    ar = [ar_samples[j].iloc[i] for j in range(p)] if p > 0 else []
+    ma = [ma_samples[j].iloc[i] for j in range(q)] if q > 0 else []
 
-    if p == 0:
-        posteriors.append((ma, sigma, mu))
-    elif q == 0:
-        posteriors.append((ar, sigma, mu))
-    else:
-        posteriors.append((ar, ma, sigma, mu))
+    sigma = sigma_samples.iloc[i]
+    mu = mu_samples.iloc[i]
+
+    posteriors.append(tuple(ar + ma + [sigma, mu]))
 
     
    def arima_func(x,params):
