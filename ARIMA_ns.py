@@ -222,24 +222,29 @@ class ARIMA_Nested_Sampler:
 
  def direct_forecast(self,overall_time,overall_data,final_index,num_forecast,n_samples,**kwargs):
    samples = self.posterior_samples.sample(n_samples)
-   p,d,q = self.order
-   ar_samples = []
-   ma_samples = []
-   sigma_samples = []
-   mu_samples = []
-   for ar in range(p):
-      ar_samples.append(samples[f'phi_{ar+1}'])
-   for ma in range(q):
-      ma_samples.append(samples[f'theta_{ma+1}'])
-    
-   sigma_samples.append(samples['sigma'])
-   mu_samples.append(samples['mu'])
-   if len(ar_samples)==0:
-      posteriors = [(ma,sigma,mu) for ma,sigma,mu in zip(ma_samples,sigma_samples,mu_samples)]
-   elif len(ma_samples)==0:
-      posteriors = [(ar,sigma,mu) for ar,sigma,mu in zip(ar_samples,sigma_samples,mu_samples)]
-   else:
-      posteriors = [(ar,ma,sigma,mu) for ar,ma,sigma,mu in zip(ar_samples,ma_samples,sigma_samples,mu_samples)]
+   p, d, q = self.order
+   samples = self.posterior_samples.sample(n_samples)
+
+   ar_samples = [samples[f'phi_{i+1}'] for i in range(p)] if p > 0 else []
+   ma_samples = [samples[f'theta_{i+1}'] for i in range(q)] if q > 0 else []
+   sigma_samples = samples['sigma']
+   mu_samples = samples['mu']
+
+   posteriors = []
+
+   for i in range(n_samples):
+    ar = [ar_samples[j][i] for j in range(p)] if p > 0 else []
+    ma = [ma_samples[j][i] for j in range(q)] if q > 0 else []
+    sigma = sigma_samples[i]
+    mu = mu_samples[i]
+
+    if p == 0:
+        posteriors.append((ma, sigma, mu))
+    elif q == 0:
+        posteriors.append((ar, sigma, mu))
+    else:
+        posteriors.append((ar, ma, sigma, mu))
+
     
    def arima_func(x,params):
       phis = params[0:p]
