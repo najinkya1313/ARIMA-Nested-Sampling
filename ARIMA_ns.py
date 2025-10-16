@@ -220,7 +220,7 @@ class ARIMA_Nested_Sampler:
     plt.ylabel('Value')
     plt.show()
 
-def direct_forecast(self,overall_time,overall_data,final_index,num_forecast,n_samples,**kwargs):
+ def direct_forecast(self,overall_time,overall_data,final_index,num_forecast,n_samples,**kwargs):
    samples = self.posterior_samples.sample(n_samples)
    p,d,q = self.order
    ar_samples = []
