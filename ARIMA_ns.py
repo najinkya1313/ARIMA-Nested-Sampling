@@ -228,9 +228,9 @@ class ARIMA_Nested_Sampler:
    sigma_samples = []
    mu_samples = []
    for ar in range(p):
-      ar_samples.append(samples[f'phi_{ar}'])
+      ar_samples.append(samples[f'phi_{ar+1}'])
    for ma in range(q):
-      ma_samples.append(samples[f'theta_{ma}'])
+      ma_samples.append(samples[f'theta_{ma+1}'])
     
    sigma_samples.append(samples['sigma'])
    mu_samples.append(samples['mu'])
