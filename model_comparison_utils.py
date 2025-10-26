@@ -89,7 +89,7 @@ def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None,invert
   plt.imshow(heatmap_data, origin='lower', cmap='plasma',vmin=vmin,vmax=vmax)
  else:
   plt.imshow(heatmap_data, origin='lower', cmap='plasma_r',vmin=vmin,vmax=vmax)
- plt.colorbar(label='Log Evidence',fontsize=9,fraction=0.046,pad=0.04)
+ plt.colorbar(fraction=0.046,pad=0.04)
  plt.xticks(np.arange(0,max_order+1),fontsize=9)
  plt.yticks(np.arange(0,max_order+1),fontsize=9)
  plt.xlabel('AR(p)', fontsize=9)
