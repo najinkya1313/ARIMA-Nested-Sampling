@@ -77,10 +77,10 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
 
     im = ax.imshow(heatmap_data, origin="lower", cmap="inferno", vmin=vmin, vmax=vmax)
     cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    cbar.set_label("log Evidence", fontsize=8)
+    cbar.set_label(r"$\log{P_i}$", fontsize=8)
 
-    ax.set_xlabel("AR (p)", fontsize=8)
-    ax.set_ylabel("MA (q)", fontsize=8)
+    ax.set_xlabel("AR (p)", fontsize=9)
+    ax.set_ylabel("MA (q)", fontsize=9)
     ax.tick_params(axis="both", labelsize=7)
 
     # Highlight maximum
