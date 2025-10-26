@@ -54,7 +54,7 @@ def load_evidence_file(file_name):
     mixed_evidences = evidences,evidence_errs
     return mixed_evidences
 
-def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None,invert=False):
+def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None,invert=False,**kwargs):
  evidences,evidence_err = mixed_evidences
  p_values = np.arange(0, max_order+1)
  q_values = np.arange(0, max_order+1)
@@ -80,27 +80,28 @@ def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None,invert
 
  vmin = min(Z_flat) + contrast
  vmax = max(Z_flat)
-
- plt.figure(figsize=(17,17))
+ def_width = 508.0 * 1.0/72.27  ##consistent with MNRAS style
+ def_height = 508.0 * 0.6
+ figwidth = kwargs.get("fig_width",def_width)
+ figheight = kwargs.get("fig_height",def_height)
+ plt.figure(figsize=(figwidth,figheight))
  if invert==False:
   plt.imshow(heatmap_data, origin='lower', cmap='plasma',vmin=vmin,vmax=vmax)
  else:
   plt.imshow(heatmap_data, origin='lower', cmap='plasma_r',vmin=vmin,vmax=vmax)
  plt.colorbar(label='Log Evidence')
- plt.xticks(np.arange(0,max_order+1))
- plt.yticks(np.arange(0,max_order+1))
- plt.xlabel('AR(p)', fontsize=15)
- plt.ylabel('MA(q)', fontsize=15)
+ plt.xticks(np.arange(0,max_order+1),fontsize=9)
+ plt.yticks(np.arange(0,max_order+1),fontsize=9)
+ plt.xlabel('AR(p)', fontsize=9)
+ plt.ylabel('MA(q)', fontsize=9)
 
 # Annotate with text values (value ± error)
  for i in range(max_order+1):
     for j in range(max_order+1):
         if not np.isnan(heatmap_data[j, i]):
             plt.text(i, j, f"{heatmap_data[j, i]:.2f}±{heatmap_err[j, i]:.2f}", 
-                     ha='center', va='center', color='black', fontsize=10)
+                     ha='center', va='center', color='black', fontsize=9)
  if title:
-     plt.title(title,fontsize=20)
- else:
-     plt.title(r'Log Evidence Heatmap',fontsize=20)
+     plt.title(title,fontsize=9)
  
  plt.show()
