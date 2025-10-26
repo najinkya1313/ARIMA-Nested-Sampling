@@ -54,54 +54,46 @@ def load_evidence_file(file_name):
     mixed_evidences = evidences,evidence_errs
     return mixed_evidences
 
-def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None,invert=False,**kwargs):
- evidences,evidence_err = mixed_evidences
- p_values = np.arange(0, max_order+1)
- q_values = np.arange(0, max_order+1)
 
- # Flattened meshgrid for p, q pairs
- P, Q = np.meshgrid(p_values, q_values, indexing='ij')
- P_flat = P.flatten()
- Q_flat = Q.flatten()
+def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=True, **kwargs):
+    evidences, evidence_err = mixed_evidences
+    p_values = np.arange(max_order + 1)
+    q_values = np.arange(max_order + 1)
 
- Z_flat = np.array(evidences)
+    P, Q = np.meshgrid(p_values, q_values, indexing="ij")
+    Z_flat, Z_err_flat = np.array(evidences), np.array(evidence_err)
 
- Z_err_flat = np.array(evidence_err)
+    heatmap_data = np.full((max_order + 1, max_order + 1), np.nan)
+    for p, q, z in zip(P.flatten()[1:], Q.flatten()[1:], Z_flat):
+        heatmap_data[q, p] = z
 
+    vmin, vmax = min(Z_flat) + contrast, max(Z_flat)
 
- # Initialize with NaN so missing (like (0,0)) stay blank
- heatmap_data = np.full((max_order+1, max_order+1), np.nan)
- heatmap_err  = np.full((max_order+1, max_order+1), np.nan)
+    # --- consistent figure size (double column) ---
+    fig_width_pt, inches_per_pt, golden_mean = 508.0, 1.0 / 72.27, 0.6
+    fig_width, fig_height = fig_width_pt * inches_per_pt, fig_width_pt * inches_per_pt * golden_mean
 
- # Fill skipping (0,0) since evidences exclude it
- for p, q, z, zerr in zip(P_flat[1:], Q_flat[1:], Z_flat, Z_err_flat):
-    heatmap_data[q, p] = z
-    heatmap_err[q, p] = zerr
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
 
- vmin = min(Z_flat) + contrast
- vmax = max(Z_flat)
- def_width = 508.0 * 1.0/72.27  ##consistent with MNRAS style
- def_height = def_width * 0.6
- figwidth = kwargs.get("fig_width",def_width)
- figheight = kwargs.get("fig_height",def_height)
- plt.figure(figsize=(figwidth,figheight))
- if invert==False:
-  plt.imshow(heatmap_data, origin='lower', cmap='inferno',vmin=vmin,vmax=vmax)
- else:
-  plt.imshow(heatmap_data, origin='lower', cmap='inferno_r',vmin=vmin,vmax=vmax)
- plt.colorbar(fraction=0.046,pad=0.04)
- plt.xticks(np.arange(0,max_order+1),fontsize=7)
- plt.yticks(np.arange(0,max_order+1),fontsize=7)
- plt.xlabel('AR(p)', fontsize=9)
- plt.ylabel('MA(q)', fontsize=9)
+    im = ax.imshow(heatmap_data, origin="lower", cmap="inferno", vmin=vmin, vmax=vmax)
+    cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cbar.set_label("log Evidence", fontsize=8)
 
-# Annotate with text values (value ± error)
- for i in range(max_order+1):
-    for j in range(max_order+1):
-        if not np.isnan(heatmap_data[j, i]):
-            plt.text(i, j, f"{heatmap_data[j, i]:.2f}±{heatmap_err[j, i]:.2f}", 
-                     ha='center', va='center', color='black', fontsize=5)
- if title:
-     plt.title(title,fontsize=9)
- 
- plt.show()
+    ax.set_xlabel("AR (p)", fontsize=8)
+    ax.set_ylabel("MA (q)", fontsize=8)
+    ax.tick_params(axis="both", labelsize=7)
+
+    # Highlight maximum
+    if highlight_max:
+        j, i = np.unravel_index(np.nanargmax(heatmap_data), heatmap_data.shape)
+        ax.scatter(i, j, s=40, facecolors='none', edgecolors='cyan', linewidths=1)
+
+    # Annotate only top 3 evidences (optional)
+    top_idx = np.argsort(Z_flat)[-3:]
+    for idx in top_idx:
+        p, q = P.flatten()[idx + 1], Q.flatten()[idx + 1]
+        val = heatmap_data[q, p]
+        ax.text(p, q, f"{val:.1f}", ha="center", va="center", color="white", fontsize=6, weight="bold")
+
+    fig.tight_layout(pad=0.5)
+    return fig
