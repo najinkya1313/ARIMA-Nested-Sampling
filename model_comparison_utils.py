@@ -81,7 +81,7 @@ def plot_evidence_heatmap(mixed_evidences,max_order,contrast=0,title=None,invert
  vmin = min(Z_flat) + contrast
  vmax = max(Z_flat)
  def_width = 508.0 * 1.0/72.27  ##consistent with MNRAS style
- def_height = 508.0 * 0.6
+ def_height = def_width * 0.6
  figwidth = kwargs.get("fig_width",def_width)
  figheight = kwargs.get("fig_height",def_height)
  plt.figure(figsize=(figwidth,figheight))
