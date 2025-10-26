@@ -113,7 +113,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
  unfiltered_particles,unfilteredlogprior = jax.vmap(prior_sample)(particle_keys)
  particles = particles_filter(unfiltered_particles,unfilteredlogprior)
  
- ##------------------While loop to keep drawing samples until num_live reached (optimize with jax later)--------------------------------
+ ##------------------While loop to keep drawing samples until num_live reached --------------------------------
  while len(particles['sigma'])<num_live:
    rng_key,sample_key = jax.random.split(rng_key)
    sample_particle_keys = jax.random.split(sample_key,num_live*1000)
