@@ -55,7 +55,7 @@ def load_evidence_file(file_name):
     return mixed_evidences
 
 
-def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=True, **kwargs):
+def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=True,annotate=True, **kwargs):
     evidences, evidence_err = mixed_evidences
     p_values = np.arange(max_order + 1)
     q_values = np.arange(max_order + 1)
@@ -74,8 +74,9 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
     # --- consistent figure size (double column) ---
     fig_width_pt, inches_per_pt, golden_mean = 508.0, 1.0 / 72.27, 0.6
     fig_width, fig_height = fig_width_pt * inches_per_pt, fig_width_pt * inches_per_pt * golden_mean
-
-    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+    width = kwargs.get('fig_width',fig_width)
+    height = kwargs.get('fig_height',fig_height)
+    fig, ax = plt.subplots(figsize=(width, height))
 
     im = ax.imshow(heatmap_data, origin="lower", cmap="inferno", vmin=vmin, vmax=vmax)
     cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
@@ -91,7 +92,8 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
         ax.scatter(i, j, s=40, facecolors='none', edgecolors='cyan', linewidths=1)
 
     # Annotate ALL tiles with values ± errors
-    for i in range(max_order + 1):
+    if annotate:
+     for i in range(max_order + 1):
         for j in range(max_order + 1):
             if not np.isnan(heatmap_data[j, i]):
                 ax.text(
