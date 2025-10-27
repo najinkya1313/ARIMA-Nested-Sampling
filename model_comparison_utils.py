@@ -95,7 +95,7 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
         for j in range(max_order + 1):
             if not np.isnan(heatmap_data[j, i]):
                 ax.text(
-                    i, j, f"{heatmap_data[j, i]:.2f}±{heatmap_err[j, i]:.2f}",
+                    i, j, f"{heatmap_data[j, i]:.2f}±{heatmap_err[j, i]:.1f}",
                     ha="center", va="center", color="black", fontsize=5
                 )
 
