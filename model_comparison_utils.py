@@ -64,8 +64,10 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
     Z_flat, Z_err_flat = np.array(evidences), np.array(evidence_err)
 
     heatmap_data = np.full((max_order + 1, max_order + 1), np.nan)
-    for p, q, z in zip(P.flatten()[1:], Q.flatten()[1:], Z_flat):
+    heatmap_err = np.full((max_order + 1, max_order + 1), np.nan)
+    for p, q, z, zerr in zip(P.flatten()[1:], Q.flatten()[1:], Z_flat, Z_err_flat):
         heatmap_data[q, p] = z
+        heatmap_err[q, p] = zerr
 
     vmin, vmax = min(Z_flat) + contrast, max(Z_flat)
 
@@ -88,12 +90,15 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
         j, i = np.unravel_index(np.nanargmax(heatmap_data), heatmap_data.shape)
         ax.scatter(i, j, s=40, facecolors='none', edgecolors='cyan', linewidths=1)
 
-    # Annotate only top 3 evidences (optional)
-    top_idx = np.argsort(Z_flat)[-3:]
-    for idx in top_idx:
-        p, q = P.flatten()[idx + 1], Q.flatten()[idx + 1]
-        val = heatmap_data[q, p]
-        ax.text(p, q, f"{val:.1f}", ha="center", va="center", color="white", fontsize=6, weight="bold")
+    # Annotate ALL tiles with values ± errors
+    for i in range(max_order + 1):
+        for j in range(max_order + 1):
+            if not np.isnan(heatmap_data[j, i]):
+                ax.text(
+                    i, j, f"{heatmap_data[j, i]:.2f}±{heatmap_err[j, i]:.2f}",
+                    ha="center", va="center", color="white", fontsize=6, weight="bold"
+                )
 
     fig.tight_layout(pad=0.5)
     return fig
+
