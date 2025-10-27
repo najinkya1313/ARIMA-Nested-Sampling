@@ -55,7 +55,7 @@ def load_evidence_file(file_name):
     return mixed_evidences
 
 
-def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=True,annotate=True, **kwargs):
+def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=True,annotate=True,invert=False, **kwargs):
     evidences, evidence_err = mixed_evidences
     p_values = np.arange(max_order + 1)
     q_values = np.arange(max_order + 1)
@@ -77,8 +77,12 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
     width = kwargs.get('fig_width',fig_width)
     height = kwargs.get('fig_height',fig_height)
     fig, ax = plt.subplots(figsize=(width, height))
+    if invert:
 
-    im = ax.imshow(heatmap_data, origin="lower", cmap="inferno", vmin=vmin, vmax=vmax)
+     im = ax.imshow(heatmap_data, origin="lower", cmap="inferno_r", vmin=vmin, vmax=vmax)
+    else:
+     im = ax.imshow(heatmap_data, origin="lower", cmap="inferno", vmin=vmin, vmax=vmax)
+        
     cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     cbar.set_label(r"$\log{P_i}$", fontsize=8)
 
