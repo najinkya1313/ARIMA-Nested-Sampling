@@ -88,6 +88,8 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
 
     ax.set_xlabel("AR (p)", fontsize=9)
     ax.set_ylabel("MA (q)", fontsize=9)
+    ax.set_xticklabels(np.arange(max_order + 1))
+    ax.set_yticklabels(np.arange(max_order + 1))
     ax.tick_params(axis="both", labelsize=7)
 
     # Highlight maximum
@@ -101,7 +103,7 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
         for j in range(max_order + 1):
             if not np.isnan(heatmap_data[j, i]):
                 ax.text(
-                    i, j, f"{heatmap_data[j, i]:.2f}±{heatmap_err[j, i]:.1f}",
+                    i, j, f"{heatmap_data[j, i]:.1f}±{heatmap_err[j, i]:.1f}",
                     ha="center", va="center", color="black", fontsize=5
                 )
 
