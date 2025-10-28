@@ -49,7 +49,7 @@ def prior_parameters(prior_type:str,order:tuple,scale,mu_mean,mu_scale,prior_bou
      for ma in range(q):
         prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':scale}})
      
-     prior_params.update({'sigma':{'mean':0,'scale':7}})
+     prior_params.update({'sigma':{'mean':0,'scale':20}})
      prior_params.update({'mu':{'mean':mu_mean,'scale':mu_scale}})
      
     elif prior_type =="uniform":
