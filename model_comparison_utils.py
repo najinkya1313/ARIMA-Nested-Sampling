@@ -88,6 +88,8 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
 
     ax.set_xlabel("AR (p)", fontsize=9)
     ax.set_ylabel("MA (q)", fontsize=9)
+    ax.set_xticks(np.arange(max_order+1))
+    ax.set_yticks(np.arange(max_order+1))
     ax.set_xticklabels(np.arange(max_order + 1))
     ax.set_yticklabels(np.arange(max_order + 1))
     ax.tick_params(axis="both", labelsize=7)
