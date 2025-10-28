@@ -147,6 +147,7 @@ class ARIMA_Nested_Sampler:
   ##Processing results
   columns = [i for i in self.prior_params.keys()]
   self.columns = columns
+  labels = [fr'$\phi_{ph+1}$' for phi in range(p)] + [fr'$\theta_{th+1}' for th in range(q)] + [r'$\sigma$',r'$\mu$']
     
   data = jnp.vstack([dead.particles[key] for key in columns]).T
 
@@ -155,7 +156,7 @@ class ARIMA_Nested_Sampler:
   logL=dead.loglikelihood,
   logL_birth=dead.loglikelihood_birth,
   columns=columns,
-  labels=None,
+  labels=labels,
   logzero=jnp.nan,
   )
   self.posterior_samples = posterior_samples
