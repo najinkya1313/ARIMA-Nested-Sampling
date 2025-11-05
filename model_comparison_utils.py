@@ -11,6 +11,7 @@ def ARIMA_model_comparison(data,max_p,max_q,num_live,num_delete,seed,mu_mean=0,m
     evidence_err = []
     order_done = []
     orders = [(p,0,q) for p in range(max_p+1) for q in range(max_q+1)]
+    orders.remove((0,0,0))
     seeds = [seed]*len(orders)
     for order,seed in zip(orders,seeds):
         model = ARIMA_Nested_Sampler(data,order,mu_mean,mu_scale,num_live,num_delete,seed,prior_bounds=prior_bounds,prior_scale=prior_scale)
