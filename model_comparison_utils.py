@@ -4,15 +4,17 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
+from scipy.special import logsumexp
 
-
-def ARIMA_model_comparison(data,orders,num_live,num_delete,seeds,mu_mean=0,mu_scale=1,prior_scale=1,file_name=None,prior_bounds={}):
+def ARIMA_model_comparison(data,max_p,max_q,num_live,num_delete,seed,mu_mean=0,mu_scale=1,prior_scale=1,normalize=True,file_name=None,prior_bounds={}):
     evidences = []
     evidence_err = []
     order_done = []
+    orders = [(p,0,q) for p in range(max_p+1) for q in range(max_q+1)]
+    seeds = [seed]*len(orders)
     for order,seed in zip(orders,seeds):
         model = ARIMA_Nested_Sampler(data,order,mu_mean,mu_scale,num_live,num_delete,seed,prior_bounds=prior_bounds,prior_scale=prior_scale)
-        evidences.append(model.log_evidence)
+        evidence = evidences.append(model.log_evidence)
         evidence_err.append(model.log_evidence_err)
         order_done.append(order)
         evidence_arr = np.array(evidences)
@@ -26,8 +28,14 @@ def ARIMA_model_comparison(data,orders,num_live,num_delete,seeds,mu_mean=0,mu_sc
         if file_name:
          with open(file_name, "a") as f:
             f.write(f"Order={order}, Seed={seed}, Evidence={model.log_evidence}, Error={model.log_evidence_err}\n")
-       
-    return evidences,evidence_err
+    evidences = np.array(evidences)
+    evidence_err = np.array(evidence_err)
+    if normalize:
+        normalization = logsumexp(evidences)
+        log_posteriors = evidences - normalization
+        return log_posteriors,evidence_err
+    else:
+        return evidences,evidence_err
 
 def load_evidence_file(file_name):
     evidences = []
