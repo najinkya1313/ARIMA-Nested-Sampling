@@ -19,14 +19,16 @@ def loglikelihood(data,order,seed):
     p,d,q = order
     phi_keys = [f'phi_{i+1}' for i in range(p)]
     theta_keys = [f'theta_{j+1}' for j in range(q)]
+    init_y_keys = [f'init_y_{k+1}' for k in range(p)]
+    init_e_keys = [f'init_e_{l+1}' for l in range(q)]
     
     def llk(params):
         sigma = params['sigma']
         mu = params['mu']
-        init_y = params['init_y']
-        init_e = params['init_e']
-        phi = jnp.array([params[k] for k in phi_keys]) if p > 0 else jnp.array([])
-        theta = jnp.array([params[k] for k in theta_keys]) if q > 0 else jnp.array([])
+        phi = jnp.array([params[i] for i in phi_keys]) if p > 0 else jnp.array([])
+        theta = jnp.array([params[j] for j in theta_keys]) if q > 0 else jnp.array([])
+        init_y = jnp.array([params[k] for k in init_y_keys]) if p > 0 else jnp.array([])
+        init_e = jnp.array([params[l] for l in init_e_keys]) if q > 0 else jnp.array([])
         if mu.shape != ():
             mu = mu.reshape(())
         
