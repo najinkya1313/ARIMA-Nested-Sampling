@@ -47,9 +47,9 @@ def prior_parameters(prior_type:str,order:tuple,coeff_scale,mu_mean,mu_scale,ini
     prior_params = {}
     if prior_type !="uniform":
      for ar in range(p):
-        prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':scale}})
+        prior_params.update({f'phi_{ar+1}':{'mean':0,'scale':coeff_scale}})
      for ma in range(q):
-        prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':scale}})
+        prior_params.update({f'theta_{ma+1}':{'mean':0,'scale':coeff_scale}})
      init_y_scale = mu_scale
      init_y_mean = mu_mean
      prior_params.update({'sigma':{'mean':0,'scale':20}})
