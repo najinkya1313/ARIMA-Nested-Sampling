@@ -109,10 +109,12 @@ def normal_prior(rng_key,num_live,prior_params,order):
       params.update({theta_label:theta_particle})
     params.update({'sigma':sigma_particle})
     params.update({'mu':mu_particle})
-    for init_y_label,init_y_particle in zip(init_y_names,init_y_particles):
-      params.update({init_y_label:init_y_particle})
-    for init_e_label,init_e_particle in zip(init_e_names,init_e_particles):
-      params.update({init_e_label:init_e_particle})
+    if p:
+     for init_y_label,init_y_particle in zip(init_y_names,init_y_particles):
+       params.update({init_y_label:init_y_particle})
+    if q:
+     for init_e_label,init_e_particle in zip(init_e_names,init_e_particles):
+       params.update({init_e_label:init_e_particle})
     return params
   def invalid_point(roots):
     for phi_label,phi_particle in zip(phi_labels,phi_particles):
@@ -121,10 +123,12 @@ def normal_prior(rng_key,num_live,prior_params,order):
       params.update({theta_label:0.})
     params.update({'sigma':0.})
     params.update({'mu':0.})
-    for init_y_label,init_y_particle in zip(init_y_names,init_y_particles):
-      params.update({init_y_label:0.})
-    for init_e_label,init_e_particle in zip(init_e_names,init_e_particles):
-      params.update({init_e_label:0.})
+    if p:
+     for init_y_label,init_y_particle in zip(init_y_names,init_y_particles):
+       params.update({init_y_label:0.})
+    if q:
+     for init_e_label,init_e_particle in zip(init_e_names,init_e_particles):
+       params.update({init_e_label:0.})
     return params
   
   filtered_params = jax.lax.cond(jnp.all(abs(roots)>1),valid_point,invalid_point,roots)
