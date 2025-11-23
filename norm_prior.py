@@ -83,9 +83,9 @@ def normal_prior(rng_key,num_live,prior_params,order):
 
   init_keys = jax.random.split(rng_key,p+q)
   if p:
-   init_y_particles = init_y_scale * jnp.array([jax.random.normal(init_y_key) for init_y_key in init_keys[0:p]) + init_y_mean
+   init_y_particles = init_y_scale * jnp.array([jax.random.normal(init_y_key) for init_y_key in init_keys[0:p]]) + init_y_mean
   if q:
-   init_e_particles = init_e_scale * jnp.array([jax.random.normal(init_e_key) for init_e_key in init_keys[p:p+q]) + init_e_mean
+   init_e_particles = init_e_scale * jnp.array([jax.random.normal(init_e_key) for init_e_key in init_keys[p:p+q]]) + init_e_mean
   
 
   
