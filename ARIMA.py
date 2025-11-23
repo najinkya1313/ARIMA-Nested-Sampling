@@ -4,11 +4,10 @@ from functools import partial
 
 
 @partial(jax.jit, static_argnums=(1,))          # ‘order’ is static
-def ARIMA_fast(data, order, sigma,mu, phi, theta, seed):
+def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,init_e, seed):
     """
     Vectorised non-seasonal ARIMA(p,d,q) for JAX/XLA.
     """
-    
     key = jax.random.PRNGKey(seed)
     key,arima_key = jax.random.split(key)
     p, d, q = order
@@ -25,8 +24,8 @@ def ARIMA_fast(data, order, sigma,mu, phi, theta, seed):
     
 
     # 3. Initial state ------------------------------------------------------------
-    past_y = jnp.full((p,), diff.mean(), dtype=diff.dtype) if p else jnp.empty((0,), diff.dtype)
-    past_e = jnp.zeros((q,),                 diff.dtype)   if q else jnp.empty((0,), diff.dtype)
+    past_y = jnp.array(init_y) if p else jnp.empty((0,), diff.dtype)
+    past_e = jnp.array(init_e) if q else jnp.empty((0,), diff.dtype)
 
     # 4. One scan step ------------------------------------------------------------
     def one_step(carry, x):
