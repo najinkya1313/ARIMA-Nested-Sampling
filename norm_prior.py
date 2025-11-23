@@ -67,7 +67,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
  @jax.jit
  def prior_sample(rng_key):
   
-  coeff_keys = jax.random.split(rng_key, len(prior_params)-2-p-q) ##these are random keys for the ARMA coeffs
+  coeff_keys = jax.random.split(rng_key, p+q) ##these are random keys for the ARMA coeffs
   param_labels = [label for label in prior_params_modsigma.keys()]
   phi_labels = param_labels[0:p]
   theta_labels = param_labels[p:p+q]
