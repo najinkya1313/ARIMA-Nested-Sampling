@@ -23,17 +23,19 @@ def loglikelihood(data,order,seed):
     def llk(params):
         sigma = params['sigma']
         mu = params['mu']
+        init_y = params['init_y']
+        init_e = params['init_e']
         phi = jnp.array([params[k] for k in phi_keys]) if p > 0 else jnp.array([])
         theta = jnp.array([params[k] for k in theta_keys]) if q > 0 else jnp.array([])
         if mu.shape != ():
             mu = mu.reshape(())
         
-        y_model = ARIMA_fast(data,order,0,mu,phi,theta,seed)
+        y_model = ARIMA_fast(data,order,0,mu,phi,theta,init_y,init_e,seed)
         return jax.scipy.stats.multivariate_normal.logpdf(data,y_model,sigma**2)
  
     return llk
 
-def prior_parameters(prior_type:str,order:tuple,scale,mu_mean,mu_scale,prior_bounds={}):
+def prior_parameters(prior_type:str,order:tuple,coeff_scale,mu_mean,mu_scale,init_e_scale,prior_bounds={}):
     """A helper function to return the prior parameters dictionary to be used in Nested Sampling
     Arguments:
      prior_type: type of prior distribution to be used - 'normal' or 'uniform'
@@ -51,6 +53,10 @@ def prior_parameters(prior_type:str,order:tuple,scale,mu_mean,mu_scale,prior_bou
      
      prior_params.update({'sigma':{'mean':0,'scale':20}})
      prior_params.update({'mu':{'mean':mu_mean,'scale':mu_scale}})
+     prior_params.update({'init_y':{'mean':mu_mean,'scale':mu_scale}})
+     prior_params.update({'init_e':{'mean':0,'scale':init_e_scale}})
+
+
      
     elif prior_type =="uniform":
      if len(prior_bounds)==0:
@@ -72,7 +78,7 @@ class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
  """
- def __init__(self,data,order,mu_mean,mu_scale,num_live,num_delete,seed,inner_steps_factor=6,prior_scale=1,prior_type="normal",prior_bounds={}):
+ def __init__(self,data,order,mu_mean,mu_scale,num_live,num_delete,seed,inner_steps_factor=6,prior_scale=1,init_e_scale=10,prior_type="normal",prior_bounds={}):
   """
   Initializes and runs the Nested Sampling.
   Args:
@@ -88,7 +94,7 @@ class ARIMA_Nested_Sampler:
   self.order = order
   self.mu_mean = mu_mean
   self.mu_scale = mu_scale
-  
+  self.init_e_scale = init_e_scale
   self.num_live = num_live
   self.num_delete = num_delete
   self.seed = seed
@@ -98,7 +104,7 @@ class ARIMA_Nested_Sampler:
   self.prior_type = prior_type
 
 
-  prior_params = prior_parameters(self.prior_type,self.order,self.prior_scale,self.mu_mean,self.mu_scale,self.prior_bounds)
+  prior_params = prior_parameters(self.prior_type,self.order,self.prior_scale,self.mu_mean,self.mu_scale,self.init_e_scale,self.prior_bounds)
   self.prior_params = prior_params
   self.log_likelihood = loglikelihood(self.data,self.order,self.seed)
  
@@ -147,7 +153,7 @@ class ARIMA_Nested_Sampler:
   ##Processing results
   columns = [i for i in self.prior_params.keys()]
   self.columns = columns
-  labels = [fr'$\phi_{ph+1}$' for ph in range(p)] + [fr'$\theta_{th+1}$' for th in range(q)] + [r'$\sigma$',r'$\mu$']
+  labels = [fr'$\phi_{ph+1}$' for ph in range(p)] + [fr'$\theta_{th+1}$' for th in range(q)] + [r'$\sigma$',r'$\mu$',r'$y_0$',r'$\epsilon_0$']
     
   data = jnp.vstack([dead.particles[key] for key in columns]).T
 
@@ -230,6 +236,8 @@ class ARIMA_Nested_Sampler:
    ma_samples = [samples[f'theta_{i+1}'] for i in range(q)] if q > 0 else []
    sigma_samples = samples['sigma']
    mu_samples = samples['mu']
+   init_y_samples = samples['init_y']
+   init_e_samples = samples['init_e']
 
    posteriors = []
 
@@ -239,23 +247,29 @@ class ARIMA_Nested_Sampler:
 
     sigma = sigma_samples.iloc[i]
     mu = mu_samples.iloc[i]
+    init_y = init_y_samples.iloc[i]
+    init_e = init_e_samples.iloc[i]
 
-    posteriors.append(tuple(ar + ma + [sigma, mu]))
+    posteriors.append(tuple(ar + ma + [sigma, mu,init_y,init_e]))
 
     
    def arima_func(x,params):
       phis = params[0:p]
       thetas = params[p:p+q]
-      sigma = params[-2]
-      mu = params[-1]
-      y_model = ARIMA_fast(self.data,self.order,sigma,mu,phis,thetas,self.seed)
+      sigma = params[-4]
+      mu = params[-3]
+      init_y = params[-2]
+      init_e = params[-1]
+      y_model = ARIMA_fast(self.data,self.order,sigma,mu,phis,thetas,init_y,init_e,self.seed)
       return y_model
    
    def arima_forecast(x,params):
       phis = params[0:p]
       thetas = params[p:p+q]
-      sigma = params[-2]
-      mu = params[-1]
+      sigma = params[-4]
+      mu = params[-3]
+      init_y = params[-2]
+      init_e = params[-1]
       y_forecasted = ARIMA_forecast(self.data,self.order,sigma,mu,phis,thetas,num_forecast,self.seed)
       return y_forecasted
    
