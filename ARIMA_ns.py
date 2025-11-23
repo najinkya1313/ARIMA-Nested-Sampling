@@ -54,8 +54,10 @@ def prior_parameters(prior_type:str,order:tuple,coeff_scale,mu_mean,mu_scale,ini
      init_y_mean = mu_mean
      prior_params.update({'sigma':{'mean':0,'scale':20}})
      prior_params.update({'mu':{'mean':mu_mean,'scale':mu_scale}})
-     prior_params.update({'init_y':{'mean':init_y_mean,'scale':init_y_scale}})
-     prior_params.update({'init_e':{'mean':0,'scale':init_e_scale}})
+     for in_y in range(p):
+         prior_params.update({f'init_y_{in_y+1}':{'mean':init_y_mean,'scale':init_y_scale}})
+     for in_e in range(q):
+         prior_params.update({f'init_e_{in_e+1}':{'mean':0.,'scale':init_e_scale}})
 
 
      
