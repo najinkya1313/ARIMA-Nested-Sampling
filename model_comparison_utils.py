@@ -24,23 +24,22 @@ def ARIMA_model_comparison(data,max_p,max_q,num_live,num_delete,seed,mu_mean=0,m
         print(f"Evidence for {order} : {model.log_evidence} ; Error : {model.log_evidence_err}")
         print(f"Highest Evidence so far : {max(evidences)} for order : {order_done[index]}")
         print("----------------------x-------------------x----------------------x-----")
-  
+        normalization = logsumexp(evidences)
+        log_posteriors = evidences - normalization
         # Save result to file after each run
         if file_name:
          with open(file_name, "a") as f:
-            f.write(f"Order={order}, Seed={seed}, Evidence={model.log_evidence}, Error={model.log_evidence_err}\n")
+            f.write(f"Order={order}, Seed={seed}, Evidence={model.log_evidence},log_P={model.log_posteriors}, Error={model.log_evidence_err}\n")
     evidences = np.array(evidences)
     evidence_err = np.array(evidence_err)
     if normalize:
-        normalization = logsumexp(evidences)
-        log_posteriors = evidences - normalization
         return log_posteriors,evidence_err
     else:
         return evidences,evidence_err
 
 def load_evidence_file(file_name):
-    evidences = []
-    evidence_errs = []
+    logP = []
+    errs = []
 
     with open(file_name, "r") as f:
         for line in f:
@@ -50,27 +49,27 @@ def load_evidence_file(file_name):
             try:
                 parts = line.split(",")
                 # Evidence part is like " Evidence=-123.456"
-                evidence_str = [p for p in parts if "Evidence=" in p][0]
+                logP_str = [p for p in parts if "log_P=" in p][0]
                 error_str = [p for p in parts if "Error=" in p][0]
 
-                evidence = float(evidence_str.split("=")[1])
+                logP_val = float(logP_str.split("=")[1])
                 error = float(error_str.split("=")[1])
 
-                evidences.append(evidence)
-                evidence_errs.append(error)
+                logP.append(logP_val)
+                errs.append(error)
             except Exception as e:
                 print(f"Skipping line due to parse error: {line}\nError: {e}")
-    mixed_evidences = evidences,evidence_errs
-    return mixed_evidences
+    model_posteriors = logP,errs
+    return model_posteriors
 
 
-def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=True,annotate=True,invert=False, **kwargs):
-    evidences, evidence_err = mixed_evidences
+def plot_evidence_heatmap(data, max_order, contrast=0, highlight_max=True,annotate=True,invert=False, **kwargs):
+    logP, err = data
     p_values = np.arange(max_order + 1)
     q_values = np.arange(max_order + 1)
 
     P, Q = np.meshgrid(p_values, q_values, indexing="ij")
-    Z_flat, Z_err_flat = np.array(evidences), np.array(evidence_err)
+    Z_flat, Z_err_flat = np.array(logP), np.array(err)
 
     heatmap_data = np.full((max_order + 1, max_order + 1), np.nan)
     heatmap_err = np.full((max_order + 1, max_order + 1), np.nan)
@@ -114,8 +113,8 @@ def plot_evidence_heatmap(mixed_evidences, max_order, contrast=0, highlight_max=
         for j in range(max_order + 1):
             if not np.isnan(heatmap_data[j, i]):
                 ax.text(
-                    i, j, f"{heatmap_data[j, i]:.1f}±{heatmap_err[j, i]:.1f}",
-                    ha="center", va="center", color="black", fontsize=5
+                    i, j, f"{heatmap_data[j, i]:.1f}\n±{heatmap_err[j, i]:.1f}",
+                    ha="center", va="center", color="black", fontsize=5,linespacing=0.9
                 )
 
     fig.tight_layout(pad=0.5)
