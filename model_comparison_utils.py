@@ -52,14 +52,14 @@ def load_evidence_file(file_name):
                 parts = line.split(",")
                 # Evidence part is like " Evidence=-123.456"
                
-            evidence_str = [p for p in parts if "Evidence" in p][0]
-            error_str = [p for p in parts if "Error=" in p][0]
+                evidence_str = [p for p in parts if "Evidence" in p][0]
+                error_str = [p for p in parts if "Error=" in p][0]
 
-            evidence_val = float(evidence_str.split("=")[1])
-            error = float(error_str.split("=")[1])
+                evidence_val = float(evidence_str.split("=")[1])
+                error = float(error_str.split("=")[1])
 
-            evidences.append(evidence_val)
-            errs.append(error)
+                evidences.append(evidence_val)
+                errs.append(error)
             except Exception as e:
                 print(f"Skipping line due to parse error: {line}\nError: {e}")
     normalization = logsumexp(evidences)
