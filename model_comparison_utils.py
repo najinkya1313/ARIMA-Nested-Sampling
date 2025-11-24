@@ -29,7 +29,7 @@ def ARIMA_model_comparison(data,max_p,max_q,num_live,num_delete,seed,mu_mean=0,m
         # Save result to file after each run
         if file_name:
          with open(file_name, "a") as f:
-            f.write(f"Order={order}, Seed={seed}, Evidence={model.log_evidence},log_P=log_posteriors, Error={model.log_evidence_err}\n")
+            f.write(f"Order={order}, Seed={seed}, Evidence={model.log_evidence},log_P={log_posteriors}, Error={model.log_evidence_err}\n")
     evidences = np.array(evidences)
     evidence_err = np.array(evidence_err)
     if normalize:
