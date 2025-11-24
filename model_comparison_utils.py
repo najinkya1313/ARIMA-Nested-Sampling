@@ -24,21 +24,23 @@ def ARIMA_model_comparison(data,max_p,max_q,num_live,num_delete,seed,mu_mean=0,m
         print(f"Evidence for {order} : {model.log_evidence} ; Error : {model.log_evidence_err}")
         print(f"Highest Evidence so far : {max(evidences)} for order : {order_done[index]}")
         print("----------------------x-------------------x----------------------x-----")
-        normalization = logsumexp(evidences)
-        log_posteriors = evidences - normalization
+        
         # Save result to file after each run
         if file_name:
          with open(file_name, "a") as f:
-            f.write(f"Order={order}, Seed={seed}, Evidence={model.log_evidence},log_P={log_posteriors}, Error={model.log_evidence_err}\n")
+            f.write(f"Order={order}, Seed={seed}, Evidence={model.log_evidence},Error={model.log_evidence_err}\n")
+    
     evidences = np.array(evidences)
     evidence_err = np.array(evidence_err)
+    normalization = logsumexp(evidences)
+    log_posteriors = evidences-normalization
     if normalize:
         return log_posteriors,evidence_err
     else:
         return evidences,evidence_err
 
-def load_evidence_file(file_name,posteriors=True):
-    logP = []
+def load_evidence_file(file_name):
+    evidences=[]
     errs = []
 
     with open(file_name, "r") as f:
@@ -49,19 +51,19 @@ def load_evidence_file(file_name,posteriors=True):
             try:
                 parts = line.split(",")
                 # Evidence part is like " Evidence=-123.456"
-                if posteriors:
-                 logP_str = [p for p in parts if "log_P=" in p][0]
-                else:
-                 logP_str = [p for p in parts if "Evidence" in p][0]
-                error_str = [p for p in parts if "Error=" in p][0]
+               
+            evidence_str = [p for p in parts if "Evidence" in p][0]
+            error_str = [p for p in parts if "Error=" in p][0]
 
-                logP_val = float(logP_str.split("=")[1])
-                error = float(error_str.split("=")[1])
+            evidence_val = float(evidence_str.split("=")[1])
+            error = float(error_str.split("=")[1])
 
-                logP.append(logP_val)
-                errs.append(error)
+            evidences.append(evidence_val)
+            errs.append(error)
             except Exception as e:
                 print(f"Skipping line due to parse error: {line}\nError: {e}")
+    normalization = logsumexp(evidences)
+    logP = evidences-normalization
     model_posteriors = logP,errs
     return model_posteriors
 
