@@ -117,7 +117,7 @@ def plot_evidence_heatmap(data, max_order, contrast=0, highlight_max=True,annota
             if not np.isnan(heatmap_data[j, i]):
                 ax.text(
                     i, j, f"{heatmap_data[j, i]:.1f}\n±{heatmap_err[j, i]:.1f}",
-                    ha="center", va="center", color="black", fontsize=5,linespacing=0.9
+                    ha="center", va="center", color="black", fontsize=5,linespacing=1.2
                 )
 
     fig.tight_layout(pad=0.5)
