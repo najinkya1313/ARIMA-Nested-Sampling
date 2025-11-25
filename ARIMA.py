@@ -68,7 +68,7 @@ def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,init_e, seed):
     return recovered
 
 
-def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,seed):
+def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,init_y,init_e,seed):
     r"""A function for forecasting future values for a given time-series data (can also be used for generating artificial ARIMA data) 
     Args:
      data : time-series data to use for forecasting
@@ -81,7 +81,7 @@ def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,seed):
     
     
     """
-    y_model = ARIMA_fast(data,order,sigma,mu,phi,theta,seed)
+    y_model = ARIMA_fast(data,order,sigma,mu,phi,theta,init_y,init_e,seed)
     p,d,q = order
     phi_coeffs = jnp.array(phi)
     theta_coeffs = jnp.array(theta)
