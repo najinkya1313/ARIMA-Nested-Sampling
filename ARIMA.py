@@ -69,7 +69,7 @@ def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,init_e, seed):
 
 
 def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,init_y,init_e,seed):
-    r"""A function for forecasting future values for a given time-series data (can also be used for generating artificial ARIMA data) 
+    r"""A function for direct multi-step (out-of-sample) forecasting of future values for a given time-series data (can also be used for generating artificial ARIMA data) 
     Args:
      data : time-series data to use for forecasting
      order : (p,d,q) order of the ARIMA Model
