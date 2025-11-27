@@ -1,6 +1,6 @@
 # 🌀 Nested Sampling for ARIMA Model Selection
 
-**A Python project to implement the Nested Sampling Algorithm from the Blackjax nested sampler for ARIMA Model selection, with a focus on analyzing astronomical time-series data.**
+**A Python project to implement the nested sampler from the Blackjax for ARIMA Model selection and fitting, with a focus on analyzing astronomical time-series data.**
 
 
 
