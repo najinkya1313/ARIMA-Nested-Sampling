@@ -211,7 +211,7 @@ class ARIMA_Nested_Sampler:
     
  def get_mean_forecasts(self):
      p,d,q = self.order
-     y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[p+q],self.posterior_means[p+q+1],self.posterior_means[0:p],self.posterior_means[p:p+q],init_y=self.posterior_means[p+q+1:2*p+q+1],init_e=self.posterior_means[2*p+q+1:2*p+2*q+1],self.seed)
+     y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[p+q],self.posterior_means[p+q+1],self.posterior_means[0:p],self.posterior_means[p:p+q],self.posterior_means[p+q+1:2*p+q+1],self.posterior_means[2*p+q+1:2*p+2*q+1],self.seed)
      return y_fit
      
   
