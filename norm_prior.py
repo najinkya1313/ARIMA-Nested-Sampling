@@ -1,6 +1,7 @@
 import jax
 import jax.numpy as jnp
 
+##Normal prior distributions for the ARIMA model parameters. The code implements a constrained prior distribution to get stationary and invertible ARMA coefficient parameters.
 
 def normal_prior(rng_key,num_live,prior_params,order):
  p,d,q = order
