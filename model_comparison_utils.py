@@ -7,6 +7,20 @@ import matplotlib.pyplot as plt
 from scipy.special import logsumexp
 
 def ARIMA_model_comparison(data,max_p,max_q,num_live,num_delete,seed,mu_mean=0,mu_scale=1,prior_scale=1,normalize=True,file_name=None,prior_bounds={}):
+    """Evaluates model log posterior probabilities on a grid of ARMA models.
+    Arguments:
+    data : time series data to be analyzed
+    max_p : max AR order of the grid
+    max_q : max MA order of the grid
+    num_live : number of live points to be used.
+    num_delete : number of points to delete at each iteration
+    seed : random seed
+    mu_mean : prior distribution mean of the long term mean of data
+    mu_scale : prior distribution scale of the long term mean of data
+    prior_scale : prior distribution scale for the AR and MA coefficients (phi and theta)
+    normalize : Return model log posterior probabilities; setting this to False returns log evidences.
+    file_name : save the results of the run to a .txt file
+    """
     evidences = []
     evidence_err = []
     order_done = []
@@ -40,6 +54,8 @@ def ARIMA_model_comparison(data,max_p,max_q,num_live,num_delete,seed,mu_mean=0,m
         return evidences,evidence_err
 
 def load_evidence_file(file_name):
+    """ Function to open and read the model log posterior probabilities from the .txt file of ARIMA_model_comparison.
+    """
     evidences=[]
     errs = []
 
@@ -69,6 +85,14 @@ def load_evidence_file(file_name):
 
 
 def plot_evidence_heatmap(data, max_order, contrast=0, highlight_max=True,annotate=True,invert=False, **kwargs):
+    """Plots a heatmap of the model log posterior probabilities and their associated errors on a grid of ARMA models.
+    Arguments:
+    data : the list of model log posterior probabilities and their associated error passed as a tuple (model_log_P,error)
+    max_order : max order of the ARMA grid
+    highlight_max : highlight the ARMA model with highest posterior probability (or evidence)
+    annotate : annotate the grid with values of the model log posterior probabilities and their errors
+    invert : invert the colorbar (to be used for plotting AIC/BIC heatmaps).
+    """
     logP, err = data
     p_values = np.arange(max_order + 1)
     q_values = np.arange(max_order + 1)
