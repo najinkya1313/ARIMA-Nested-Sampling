@@ -16,6 +16,13 @@ from fgivenx import plot_lines
 
 
 def loglikelihood(data,order,seed):
+    """ Loglikelihood function for ARIMA models.
+    Arguments:
+    data : time series data
+    order : (p,d,q) order of ARIMA Model
+    seed : random seed
+    
+    """
     p,d,q = order
     phi_keys = [f'phi_{i+1}' for i in range(p)]
     theta_keys = [f'theta_{j+1}' for j in range(q)]
@@ -81,7 +88,7 @@ def prior_parameters(prior_type:str,order:tuple,coeff_scale,mu_mean,mu_scale,ini
 
 class ARIMA_Nested_Sampler:
  """
- A class to perform Nested Sampling using Blackjax Nested Sampler for ARIMA Models.
+ A class to perform Nested Sampling using the Blackjax Nested Sampler for ARIMA Models.
  """
  def __init__(self,data,order,mu_mean,mu_scale,num_live,num_delete,seed,inner_steps_factor=6,prior_scale=1,init_e_scale=10,prior_type="normal",prior_bounds={}):
   """
@@ -89,10 +96,11 @@ class ARIMA_Nested_Sampler:
   Args:
      data (array or list) : The time_series data to be fitted.
      order (tuple) : (p,d,q) order of the ARIMA model.
-     prior_bounds (dict) : Bounds on the prior distribution.
+     mu_mean : normal prior mean for the long term mean of the time series 
+     mu_scale : normal prior scale for the long term mean of the time series
      num_live (int) : number of live points to draw from the prior space
-     num_delete : number of points to delete at each iteration
-     seed : Seed for random number generator
+     num_delete (int) : number of points to delete at each iteration
+     seed (int) : Random seed 
       
   """
   self.data = jnp.asarray(data)
@@ -203,13 +211,13 @@ class ARIMA_Nested_Sampler:
     
  def get_mean_forecasts(self):
      p,d,q = self.order
-     y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-2],self.posterior_means[-1],self.posterior_means[0:p],self.posterior_means[p:p+q],self.seed)
+     y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[p+q],self.posterior_means[p+q+1],self.posterior_means[0:p],self.posterior_means[p:p+q],init_y=self.posterior_means[p+q+1:2*p+q+1],init_e=self.posterior_means[2*p+q+1:2*p+2*q+1],self.seed)
      return y_fit
      
   
- def fit_model(self,compare=None):
+ def mean_fit_plot(self,compare=None):
    p,d,q = self.order
-   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[-2],self.posterior_means[-1],self.posterior_means[0:p],self.posterior_means[p:p+q],self.seed)
+   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[p+q],self.posterior_means[p+q+1],self.posterior_means[0:p],self.posterior_means[p:p+q],self.posterior_means[p+q+1:2*p+q+1],self.posterior_means[2*p+q+1:2*p+2*q+1],self.seed)
    self.y_fit = y_fit
    if compare is not None:
     if compare==True:
@@ -221,11 +229,6 @@ class ARIMA_Nested_Sampler:
     
    else:
     plt.plot(y_fit,label=f'ARIMA {self.order} model')
- 
-   
-   
-    
-    
     plt.legend()
     plt.xlabel('Time-step')
     plt.ylabel('Value')
@@ -260,21 +263,21 @@ class ARIMA_Nested_Sampler:
    def arima_func(x,params):
       phis = params[0:p]
       thetas = params[p:p+q]
-      sigma = params[-4]
-      mu = params[-3]
-      init_y = params[-2]
-      init_e = params[-1]
+      sigma = params[p+q]
+      mu = params[p+q+1]
+      init_y = params[p+q+1:2*p+q+1]
+      init_e = params[2*p+q+1:2*p+2*q+1]
       y_model = ARIMA_fast(self.data,self.order,sigma,mu,phis,thetas,init_y,init_e,self.seed)
       return y_model
    
    def arima_forecast(x,params):
       phis = params[0:p]
       thetas = params[p:p+q]
-      sigma = params[-4]
-      mu = params[-3]
-      init_y = params[-2]
-      init_e = params[-1]
-      y_forecasted = ARIMA_forecast(self.data,self.order,sigma,mu,phis,thetas,num_forecast,self.seed)
+      sigma = params[p+q]
+      mu = params[p+q+1]
+      init_y = params[p+q+1:2*p+q+1]
+      init_e = params[2*p+q+1:2*p+2*q+1]
+      y_forecasted = ARIMA_forecast(self.data,self.order,sigma,mu,phis,thetas,num_forecast,init_y,init_e,self.seed)
       return y_forecasted
    
    fig,axes = plt.subplots(1,1,figsize=(11,6))
@@ -298,10 +301,6 @@ class ARIMA_Nested_Sampler:
     
 
    
-   
-    
-
-
 def one_step_rolling(data,split_indices,num_forecast,order,seed,mu_mean=0,mu_scale=1):
     lower,upper = split_indices
     train_data = data[lower:upper]
@@ -316,8 +315,8 @@ def one_step_rolling(data,split_indices,num_forecast,order,seed,mu_mean=0,mu_sca
         
         phi = posterior_means[0:p]
         theta = posterior_means[p:p+q]
-        sigma = posterior_means[-2]
-        mu = posterior_means[-1]
+        sigma = posterior_means[p+q]
+        mu = posterior_means[p+q+1]
         if p==0:
             phi=0
         if q==0:
