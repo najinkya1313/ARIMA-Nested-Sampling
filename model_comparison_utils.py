@@ -6,7 +6,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 from scipy.special import logsumexp
 
-def ARIMA_model_comparison(data,max_p,max_q,d,num_live,num_delete,seed,mu_mean=0,mu_scale=1,prior_scale=1,normalize=True,file_name=None,prior_bounds={}):
+def ARIMA_model_comparison(data,max_p,max_q,d,num_live,num_delete,seed,mu_mean=0,mu_scale=1,prior_scale=1,normalize=True,inner_steps_factor=6,file_name=None,prior_bounds={}):
     """Evaluates model log posterior probabilities on a grid of ARMA models.
     Arguments:
     data : time series data to be analyzed
@@ -29,7 +29,7 @@ def ARIMA_model_comparison(data,max_p,max_q,d,num_live,num_delete,seed,mu_mean=0
     orders.remove((0,d,0))
     seeds = [seed]*len(orders)
     for order,seed in zip(orders,seeds):
-        model = ARIMA_Nested_Sampler(data,order,mu_mean,mu_scale,num_live,num_delete,seed,prior_bounds=prior_bounds,prior_scale=prior_scale)
+        model = ARIMA_Nested_Sampler(data,order,mu_mean,mu_scale,num_live,num_delete,seed,prior_bounds=prior_bounds,inner_steps_factor=inner_steps_factor,prior_scale=prior_scale)
         evidence = evidences.append(model.log_evidence)
         evidence_err.append(model.log_evidence_err)
         order_done.append(order)
