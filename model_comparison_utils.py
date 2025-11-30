@@ -85,7 +85,7 @@ def load_evidence_file(file_name):
     return model_posteriors
 
 
-def plot_evidence_heatmap(data, max_order, contrast=0, highlight_max=True,annotate=True,invert=False,axes=None, **kwargs):
+def plot_evidence_heatmap(data, max_order, contrast=0, highlight_max=True,annotate=True,invert=False,axes=None,figure=None, **kwargs):
     """Plots a heatmap of the model log posterior probabilities and their associated errors on a grid of ARMA models.
     Arguments:
     data : the list of model log posterior probabilities and their associated error passed as a tuple (model_log_P,error)
@@ -115,7 +115,10 @@ def plot_evidence_heatmap(data, max_order, contrast=0, highlight_max=True,annota
     width = kwargs.get('fig_width',fig_width)
     height = kwargs.get('fig_height',fig_height)
     fig, ax = plt.subplots(figsize=(width, height))
-    ax = axes
+    if axes:
+     ax = axes
+    if figure:
+     fig = figure
     if invert:
 
      im = ax.imshow(heatmap_data, origin="lower", cmap="inferno_r", vmin=vmin, vmax=vmax)
