@@ -85,7 +85,7 @@ def load_evidence_file(file_name):
     return model_posteriors
 
 
-def plot_evidence_heatmap(data, max_order, contrast=0, highlight_max=True,annotate=True,invert=False,axes, **kwargs):
+def plot_evidence_heatmap(data, max_order, contrast=0, highlight_max=True,annotate=True,invert=False,axes=None, **kwargs):
     """Plots a heatmap of the model log posterior probabilities and their associated errors on a grid of ARMA models.
     Arguments:
     data : the list of model log posterior probabilities and their associated error passed as a tuple (model_log_P,error)
