@@ -4,7 +4,7 @@ from functools import partial
 
 
 @partial(jax.jit, static_argnums=(1,))          # ‘order’ is static
-def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,init_e, seed):
+def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,seed):
     """
     Vectorised non-seasonal ARIMA(p,d,q) for JAX/XLA.
     """
@@ -25,7 +25,7 @@ def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,init_e, seed):
 
     # 3. Initial state ------------------------------------------------------------
     past_y = jnp.array(init_y) if p else jnp.empty((0,), diff.dtype)
-    past_e = jnp.array(init_e) if q else jnp.empty((0,), diff.dtype)
+    past_e = jnp.zeros(q) if q else jnp.empty((0,), diff.dtype)
 
     # 4. One scan step ------------------------------------------------------------
     def one_step(carry, x):
@@ -68,7 +68,7 @@ def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,init_e, seed):
     return recovered
 
 
-def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,init_y,init_e,seed):
+def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,init_y,seed):
     r"""A function for direct multi-step (out-of-sample) forecasting of future values for a given time-series data (can also be used for generating artificial ARIMA data) 
     Args:
      data : time-series data to use for forecasting
@@ -81,7 +81,7 @@ def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,init_y,init_e,seed
     
     
     """
-    y_model = ARIMA_fast(data,order,sigma,mu,phi,theta,init_y,init_e,seed)
+    y_model = ARIMA_fast(data,order,sigma,mu,phi,theta,init_y,seed)
     p,d,q = order
     phi_coeffs = jnp.array(phi)
     theta_coeffs = jnp.array(theta)
