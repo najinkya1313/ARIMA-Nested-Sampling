@@ -8,9 +8,9 @@ def normal_prior(rng_key,num_live,prior_params,order):
  phi_names = [f"phi_{i+1}" for i in range(p)]
  theta_names = [f"theta_{j+1}" for j in range(q)]
  init_y_names = [f"init_y_{i+1}" for i in range(p)]
- init_e_names = [f"init_e_{j+1}" for j in range(q)]
+ 
  prior_params_modsigma = {name: prior_params[name] for name in phi_names + theta_names}
- init_params = {init_name:prior_params[init_name] for init_name in init_y_names+init_e_names}
+ init_params = {init_name:prior_params[init_name] for init_name in init_y_names}
  prior_params_sigma = prior_params['sigma']
  mean_sigma = prior_params_sigma['mean']
  scale_sigma = prior_params_sigma['scale']
@@ -22,10 +22,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
   init_y_1 = prior_params['init_y_1']
   init_y_scale = init_y_1['scale']
   init_y_mean = init_y_1['mean']
- if q:
-  init_e_1 = prior_params['init_e_1']
-  init_e_scale = init_e_1['scale']
-  init_e_mean = init_e_1['mean']
+
  ##-------------------------------------------------Logprior function–------------------------------------------
  def logprior_fn(params):
   logprior = 0.0
@@ -82,11 +79,10 @@ def normal_prior(rng_key,num_live,prior_params,order):
   rng_key,mu_key = jax.random.split(rng_key) ##random keys for mu particles
   mu_particle = mu_mean + mu_scale*(jax.random.normal(mu_key))
 
-  init_keys = jax.random.split(rng_key,p+q)
+  init_keys = jax.random.split(rng_key,p)
   if p:
    init_y_particles = init_y_scale * jnp.array([jax.random.normal(init_y_key) for init_y_key in init_keys[0:p]]) + init_y_mean
-  if q:
-   init_e_particles = init_e_scale * jnp.array([jax.random.normal(init_e_key) for init_e_key in init_keys[p:p+q]]) + init_e_mean
+ 
   
 
   
@@ -113,9 +109,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
     if p:
      for init_y_label,init_y_particle in zip(init_y_names,init_y_particles):
        params.update({init_y_label:init_y_particle})
-    if q:
-     for init_e_label,init_e_particle in zip(init_e_names,init_e_particles):
-       params.update({init_e_label:init_e_particle})
+   
     return params
   def invalid_point(roots):
     for phi_label,phi_particle in zip(phi_labels,phi_particles):
@@ -127,9 +121,7 @@ def normal_prior(rng_key,num_live,prior_params,order):
     if p:
      for init_y_label,init_y_particle in zip(init_y_names,init_y_particles):
        params.update({init_y_label:0.})
-    if q:
-     for init_e_label,init_e_particle in zip(init_e_names,init_e_particles):
-       params.update({init_e_label:0.})
+
     return params
   
   filtered_params = jax.lax.cond(jnp.all(abs(roots)>1),valid_point,invalid_point,roots)
