@@ -164,7 +164,7 @@ class ARIMA_Nested_Sampler:
   ##Processing results
   columns = [i for i in self.prior_params.keys()]
   self.columns = columns
-  labels = [fr'$\phi_{ph+1}$' for ph in range(p)] + [fr'$\theta_{th+1}$' for th in range(q)] + [r'$\sigma$',r'$\mu$'] + [fr'$y_{in_y+1}$' for in_y in range(p)]]
+  labels = [fr'$\phi_{ph+1}$' for ph in range(p)] + [fr'$\theta_{th+1}$' for th in range(q)] + [r'$\sigma$',r'$\mu$'] + [fr'$y_{in_y+1}$' for in_y in range(p)]
     
   data = jnp.vstack([dead.particles[key] for key in columns]).T
 
