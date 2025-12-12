@@ -27,7 +27,7 @@ def loglikelihood(data,order,seed):
     phi_keys = [f'phi_{i+1}' for i in range(p)]
     theta_keys = [f'theta_{j+1}' for j in range(q)]
     init_y_keys = [f'init_y_{k+1}' for k in range(p)]
-    init_e_keys = [f'init_e_{l+1}' for l in range(q)]
+ 
     
     def llk(params):
         sigma = params['sigma']
@@ -35,16 +35,16 @@ def loglikelihood(data,order,seed):
         phi = jnp.array([params[i] for i in phi_keys]) if p > 0 else jnp.array([])
         theta = jnp.array([params[j] for j in theta_keys]) if q > 0 else jnp.array([])
         init_y = jnp.array([params[k] for k in init_y_keys]) if p > 0 else jnp.array([])
-        init_e = jnp.array([params[l] for l in init_e_keys]) if q > 0 else jnp.array([])
+       
         if mu.shape != ():
             mu = mu.reshape(())
         
-        y_model = ARIMA_fast(data,order,0,mu,phi,theta,init_y,init_e,seed)
+        y_model = ARIMA_fast(data,order,0,mu,phi,theta,init_y,seed)
         return jax.scipy.stats.multivariate_normal.logpdf(data,y_model,sigma**2)
  
     return llk
 
-def prior_parameters(prior_type:str,order:tuple,coeff_scale,mu_mean,mu_scale,init_e_scale,prior_bounds={}):
+def prior_parameters(prior_type:str,order:tuple,coeff_scale,mu_mean,mu_scale,prior_bounds={}):
     """A helper function to return the prior parameters dictionary to be used in Nested Sampling
     Arguments:
      prior_type: type of prior distribution to be used - 'normal' or 'uniform'
@@ -65,8 +65,7 @@ def prior_parameters(prior_type:str,order:tuple,coeff_scale,mu_mean,mu_scale,ini
      prior_params.update({'mu':{'mean':mu_mean,'scale':mu_scale}})
      for in_y in range(p):
          prior_params.update({f'init_y_{in_y+1}':{'mean':init_y_mean,'scale':init_y_scale}})
-     for in_e in range(q):
-         prior_params.update({f'init_e_{in_e+1}':{'mean':0.,'scale':init_e_scale}})
+     
 
 
      
@@ -90,7 +89,7 @@ class ARIMA_Nested_Sampler:
  """
  A class to perform Nested Sampling using the Blackjax Nested Sampler for ARIMA Models.
  """
- def __init__(self,data,order,mu_mean,mu_scale,num_live,num_delete,seed,inner_steps_factor=6,prior_scale=1,init_e_scale=10,prior_type="normal",prior_bounds={}):
+ def __init__(self,data,order,mu_mean,mu_scale,num_live,num_delete,seed,inner_steps_factor=6,prior_scale=1,prior_type="normal",prior_bounds={}):
   """
   Initializes and runs the Nested Sampling.
   Args:
@@ -107,7 +106,7 @@ class ARIMA_Nested_Sampler:
   self.order = order
   self.mu_mean = mu_mean
   self.mu_scale = mu_scale
-  self.init_e_scale = init_e_scale
+  
   self.num_live = num_live
   self.num_delete = num_delete
   self.seed = seed
@@ -117,7 +116,7 @@ class ARIMA_Nested_Sampler:
   self.prior_type = prior_type
 
 
-  prior_params = prior_parameters(self.prior_type,self.order,self.prior_scale,self.mu_mean,self.mu_scale,self.init_e_scale,self.prior_bounds)
+  prior_params = prior_parameters(self.prior_type,self.order,self.prior_scale,self.mu_mean,self.mu_scale,self.prior_bounds)
   self.prior_params = prior_params
   self.log_likelihood = loglikelihood(self.data,self.order,self.seed)
  
@@ -165,7 +164,7 @@ class ARIMA_Nested_Sampler:
   ##Processing results
   columns = [i for i in self.prior_params.keys()]
   self.columns = columns
-  labels = [fr'$\phi_{ph+1}$' for ph in range(p)] + [fr'$\theta_{th+1}$' for th in range(q)] + [r'$\sigma$',r'$\mu$'] + [fr'$y_{in_y+1}$' for in_y in range(p)] + [fr'$\epsilon_{in_e+1}$' for in_e in range(q)]
+  labels = [fr'$\phi_{ph+1}$' for ph in range(p)] + [fr'$\theta_{th+1}$' for th in range(q)] + [r'$\sigma$',r'$\mu$'] + [fr'$y_{in_y+1}$' for in_y in range(p)]]
     
   data = jnp.vstack([dead.particles[key] for key in columns]).T
 
@@ -211,13 +210,13 @@ class ARIMA_Nested_Sampler:
     
  def get_mean_forecasts(self):
      p,d,q = self.order
-     y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[p+q],self.posterior_means[p+q+1],self.posterior_means[0:p],self.posterior_means[p:p+q],self.posterior_means[p+q+1:2*p+q+1],self.posterior_means[2*p+q+1:2*p+2*q+1],self.seed)
+     y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[p+q],self.posterior_means[p+q+1],self.posterior_means[0:p],self.posterior_means[p:p+q],self.posterior_means[p+q+1:2*p+q+1],self.seed)
      return y_fit
      
   
  def mean_fit_plot(self,compare=None):
    p,d,q = self.order
-   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[p+q],self.posterior_means[p+q+1],self.posterior_means[0:p],self.posterior_means[p:p+q],self.posterior_means[p+q+1:2*p+q+1],self.posterior_means[2*p+q+1:2*p+2*q+1],self.seed)
+   y_fit = ARIMA_fast(self.data,self.order,self.posterior_means[p+q],self.posterior_means[p+q+1],self.posterior_means[0:p],self.posterior_means[p:p+q],self.posterior_means[p+q+1:2*p+q+1],self.seed)
    self.y_fit = y_fit
    if compare is not None:
     if compare==True:
