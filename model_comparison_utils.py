@@ -54,7 +54,7 @@ def ARIMA_model_comparison(data,max_p,max_q,d,num_live,num_delete,seed,mu_mean=0
     else:
         return evidences,evidence_err
 
-def load_evidence_file(file_name):
+def load_evidence_file(file_name,normalization=True):
     """ Function to open and read the model log posterior probabilities from the .txt file of ARIMA_model_comparison.
     """
     evidences=[]
@@ -79,10 +79,13 @@ def load_evidence_file(file_name):
                 errs.append(error)
             except Exception as e:
                 print(f"Skipping line due to parse error: {line}\nError: {e}")
-    normalization = logsumexp(evidences)
-    logP = evidences-normalization
-    model_posteriors = logP,errs
-    return model_posteriors
+    if normalization:
+     normalization = logsumexp(evidences)
+     logP = evidences-normalization
+     model_posteriors = logP,errs
+     return model_posteriors
+    else:
+     return evidences,errs
 
 
 def plot_evidence_heatmap(data, max_order, contrast=0, highlight_max=True,annotate=True,invert=False,axes=None,figure=None, **kwargs):
