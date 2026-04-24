@@ -191,7 +191,7 @@ Runs `ARIMA_Nested_Sampler` over all (p, q) pairs up to `(max_p, max_q)`, exclud
 
 ### `plot_evidence_heatmap`
 
-Plots a colour-mapped grid of log posterior probabilities using the `inferno` colormap. The best model is circled in cyan. Accepts `contrast` (clip the lower end of the colour scale), `annotate` (overlay values), `invert` (flip colormap for AIC/BIC), and custom figure dimensions via `fig_width`/`fig_height` kwargs.
+Plots a colour-mapped grid of log posterior probabilities on an ARMA grid. The best model is circled in cyan. Accepts `contrast` (clip the lower end of the colour scale), `annotate` (overlay values), `invert` (flip colormap for AIC/BIC), and custom figure dimensions via `fig_width`/`fig_height` kwargs.
 
 ### `load_evidence_file`
 
