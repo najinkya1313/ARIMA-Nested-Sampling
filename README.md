@@ -149,23 +149,6 @@ $$P_i \propto Z_i \cdot \pi_i$$
 With a uniform prior over model orders, this reduces to a direct comparison of evidences, visualised as a heatmap over the (p, q) grid. Over-parametrised models are automatically disfavoured through the Occam's penalty embedded in the evidence integral.
 
 ---
-
-## Astronomical Applications
-
-NestAR has been validated on both simulated and real astronomical datasets:
-
-| Dataset | Instrument | Type |
-|---|---|---|
-| Yearly sunspot number | — | Solar activity |
-| KIC 12008916 | Kepler | Red giant light curve |
-| Kepler 17 | Kepler | Exoplanet host star |
-| 3C 273 | TESS | Quasar variability |
-| S4 0954+65 | TESS | Blazar variability |
-
-In all cases, NestAR correctly recovered the best-fitting model order and returned well-constrained posterior distributions for all parameters.
-
----
-
 ## API Reference
 
 ### `ARIMA_Nested_Sampler`
