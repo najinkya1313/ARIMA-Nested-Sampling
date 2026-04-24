@@ -1,6 +1,6 @@
 # 🌀 NestAR — Nested Sampling Autoregressive Modelling
 
-> **Bayesian ARIMA model selection for astronomical time-series, powered by Nested Sampling.**
+> **Bayesian ARIMA model selection for astronomical time-series analysis using Nested Sampling.**
 
 [![arXiv](https://img.shields.io/badge/arXiv-2512.01929-b31b1b.svg)](https://arxiv.org/abs/2512.01929)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19567180.svg)](https://doi.org/10.5281/zenodo.19567180)
