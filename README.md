@@ -14,7 +14,7 @@
 
 NestAR combines **ARIMA models** with the **Nested Sampling algorithm** to tackle one of the core challenges in time-series analysis: *how do you pick the right model without overfitting?*
 
-Classical approaches like AIC/BIC rely on maximum likelihood optimisation, which can be biased — particularly for complex likelihood landscapes. NestAR takes a fully Bayesian route: it computes **log Bayesian evidences** for every candidate ARIMA(p, d, q) on a user-defined grid, and uses the evidence ratio (Bayes factor) to drive model selection. This comes with a built-in **Occam's penalty** that naturally disfavours unnecessarily complex models — no manual regularisation required.
+Classical approaches like AIC/BIC rely on maximum likelihood optimisation, which can be biased for complex likelihood landscapes. NestAR takes a fully Bayesian route: it computes **log Bayesian evidences** for every candidate ARIMA(p, d, q) on a user-defined grid, and uses the evidence ratio (Bayes factor) to drive model selection. This comes with a built-in **Occam's penalty** that naturally disfavours unnecessarily complex models.
 
 The sampler is built on [BlackJAX](https://github.com/blackjax-devs/blackjax) with JAX as the computational backend, enabling GPU-accelerated inference across full (p, q) grids in a single run.
 
@@ -217,7 +217,7 @@ If you use NestAR in your research, please cite the paper:
 
 ## Acknowledgements
 
-This work was carried out at the **Institute of Astronomy, University of Cambridge**. The nested sampler is built on [BlackJAX](https://github.com/blackjax-devs/blackjax). Posterior analysis uses [anesthetic](https://github.com/handley-lab/anesthetic) and posterior predictive plots use [fgivenx](https://github.com/handley-lab/fgivenx).
+This work was carried out in the research environment of the [Handley Lab](https://handley-lab.co.uk/) at the **Institute of Astronomy, University of Cambridge**. The nested sampler is built on [BlackJAX](https://github.com/blackjax-devs/blackjax). Posterior analysis uses [anesthetic](https://github.com/handley-lab/anesthetic) and posterior predictive plots use [fgivenx](https://github.com/handley-lab/fgivenx).
 
 ---
 
