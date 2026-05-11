@@ -68,49 +68,43 @@ def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,seed):
     return recovered
 
 
-def ARIMA_forecast(data,order,sigma,mu,phi,theta,forecast_num,init_y,seed):
-    r"""A function for direct multi-step (out-of-sample) forecasting of future values for a given time-series data (can also be used for generating artificial ARIMA data) 
-    Args:
-     data : time-series data to use for forecasting
-     order : (p,d,q) order of the ARIMA Model
-     sigma : $\sigma$ value for present shocks $\epsilon_t$
-     phi : list or array of the AR $\phi$ coefficients of ARIMA Model
-     theta : list or array of the MA $\theta$ coefficients of ARIMA Model
-     forecast_num : number of future points to forecast
-     seed : seed for random number generator
+def ARIMA_forecast(data, order, sigma, mu, phi, theta, forecast_num, init_y, seed):
+    p, d, q = order
+    y_model = ARIMA_fast(data, order, 0, mu, phi, theta, init_y, seed)  # sigma=0 for clean fit
     
+    phi_coeffs = jnp.array(phi) if p > 0 else jnp.empty(0)
+    theta_coeffs = jnp.array(theta) if q > 0 else jnp.empty(0)
+    k = mu * (1 - jnp.sum(phi_coeffs))
     
-    """
-    y_model = ARIMA_fast(data,order,sigma,mu,phi,theta,init_y,seed)
-    p,d,q = order
-    phi_coeffs = jnp.array(phi)
-    theta_coeffs = jnp.array(theta)
-    forecasted_points = []
     rng_key = jax.random.PRNGKey(seed)
-    error_key = jax.random.split(rng_key,forecast_num)
+    error_keys = jax.random.split(rng_key, forecast_num)
     
-    k = mu * (1- jnp.sum(phi_coeffs))
-    while len(forecasted_points)<forecast_num:
-        epsilon_lagged = data[-q:] - y_model[-q:]
-        for key in error_key:
-            if p:
-                y_phis = phi_coeffs*jnp.flip(data[-p:])
-            if q==0:
-                epsilon_lagged = jnp.empty(q)
-            if p==0:
-                y_phis = jnp.empty(p)
-            y_thetas = theta_coeffs * jnp.flip(epsilon_lagged)
-            epsilon_t = sigma * jax.random.normal(key)
-            y_forecast = k + jnp.sum(y_phis) + jnp.sum(y_thetas) + epsilon_t
-            forecasted_points.append(y_forecast)
-            y_forecast_arr = jnp.array([y_forecast])
-            data = jnp.concatenate([data,y_forecast_arr])
-            y_model = jnp.concatenate([y_model,y_forecast_arr])
-            
+    # work on differenced scale
+    diff_data = jnp.diff(data, n=d) if d else data
+    diff_model = jnp.diff(y_model, n=d) if d else y_model
     
+    epsilon_lagged = (diff_data[-q:] - diff_model[-q:]) if q > 0 else jnp.empty(0)
+    history = diff_data  # rolling window for AR terms
     
-    forecasted_points = jnp.array(forecasted_points)
-    return forecasted_points
-
-
+    forecasted_diff = []
+    for key in error_keys:
+        y_phis = (phi_coeffs * jnp.flip(history[-p:])).sum() if p > 0 else 0.0
+        y_thetas = (theta_coeffs * jnp.flip(epsilon_lagged)).sum() if q > 0 else 0.0
+        epsilon_t = sigma * jax.random.normal(key)
+        y_forecast = k + y_phis + y_thetas + epsilon_t
         
+        forecasted_diff.append(y_forecast)
+        history = jnp.concatenate([history, jnp.array([y_forecast])])
+        if q > 0:
+            epsilon_lagged = jnp.concatenate([jnp.array([epsilon_t]), epsilon_lagged[:-1]])
+    
+    forecast_array = jnp.array(forecasted_diff)
+    
+    # undo differencing
+    if d > 0:
+        for _ in range(d):
+            forecast_array = jnp.cumsum(
+                jnp.concatenate([data[-(d):-(d-1) if d > 1 else data[-1:]], forecast_array])
+            )[1:]
+    
+    return forecast_array
