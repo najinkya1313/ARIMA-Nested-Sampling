@@ -3,7 +3,7 @@ import jax.numpy as jnp
 from functools import partial
 
 
-@partial(jax.jit, static_argnums=(1,))          # ‘order’ is static
+@partial(jax.jit, static_argnums=(1,))        
 def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,seed):
     """
     Vectorised non-seasonal ARIMA(p,d,q) for JAX/XLA.
@@ -11,8 +11,8 @@ def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,seed):
     key = jax.random.PRNGKey(seed)
     key,arima_key = jax.random.split(key)
     p, d, q = order
-    x_dtype = jnp.asarray(data).dtype            # keep original dtype
-    data    = jnp.asarray(data, dtype=jnp.float32)  # or x_dtype
+    x_dtype = jnp.asarray(data).dtype           
+    data    = jnp.asarray(data, dtype=jnp.float32)  
 
     # 1. Differencing -------------------------------------------------------------
     diff = jnp.diff(data, n=d) if d else data
@@ -20,7 +20,10 @@ def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,seed):
     # 2. Parameters / intercept ---------------------------------------------------
     phi   = jnp.pad(jnp.asarray(phi,   dtype=diff.dtype), (0, p - len(phi)))
     theta = jnp.pad(jnp.asarray(theta, dtype=diff.dtype), (0, q - len(theta)))
-    k = mu * (1- jnp.sum(phi))
+    if d == 0:
+     k = mu * (1 - jnp.sum(phi))   # mu = unconditional mean
+    else:
+     k = mu                         # mu represents drift
     
 
     # 3. Initial state ------------------------------------------------------------
