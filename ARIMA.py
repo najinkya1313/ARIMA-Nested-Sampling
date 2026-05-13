@@ -103,8 +103,10 @@ def ARIMA_forecast(data, order, sigma, mu, phi, theta, forecast_num, init_y, see
     # undo differencing
     if d > 0:
         for _ in range(d):
-            forecast_array = jnp.cumsum(
-                jnp.concatenate([data[-(d):-(d-1) if d > 1 else data[-1:]], forecast_array])
-            )[1:]
+            if d > 1:
+              initial = data[-d:-(d-1)]
+            else:
+              initial = data[-1:]
+            forecast_array = jnp.cumsum(jnp.concatenate([initial, forecast_array]))[1:]
     
     return forecast_array
