@@ -20,7 +20,7 @@ def ARIMA_fast(data,order,sigma,mu, phi,theta,init_y,seed):
     # 2. Parameters / intercept ---------------------------------------------------
     phi   = jnp.pad(jnp.asarray(phi,   dtype=diff.dtype), (0, p - len(phi)))
     theta = jnp.pad(jnp.asarray(theta, dtype=diff.dtype), (0, q - len(theta)))
-     k = mu * (1 - jnp.sum(phi))   # mu = unconditional mean
+    k = mu * (1 - jnp.sum(phi))   # mu = unconditional mean
     
 
     # 3. Initial state ------------------------------------------------------------
