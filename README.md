@@ -10,7 +10,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19567180.svg)](https://doi.org/10.5281/zenodo.19567180)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
-[![BlackJAX](https://img.shields.io/badge/sampler-BlackJAX-purple.svg)](https://github.com/blackjax-devs/blackjax)
+
 
 ---
 
