@@ -18,7 +18,7 @@
 
 NestAR combines **ARIMA models** with the **Nested Sampling algorithm** to tackle one of the core challenges in time-series analysis: *how do you pick the right model without overfitting?*
 
-Classical approaches like AIC/BIC rely on maximum likelihood optimisation, which can be biased for complex likelihood landscapes. NestAR takes a fully Bayesian route: it computes **log Bayesian evidences** for every candidate ARIMA(p, d, q) on a user-defined grid, and uses the evidence ratio (Bayes factor) to drive model selection. This comes with a built-in **Occam's penalty** that naturally disfavours unnecessarily complex models.
+Classical approaches like AIC/BIC rely on maximum likelihood optimisation, which can be biased for complex likelihood landscapes. NestAR takes a fully Bayesian route: it computes **log Bayesian evidences** for every candidate ARIMA(p, d, q) on a user-defined grid, and uses the evidence ratio (Bayes factor) to drive model selection. This comes with a built-in **Occam's penalty** that naturally disfavours unnecessarily complex models. Posterior samples from the selected model fit can then be used to fit and forecast future timeseries values with credible intervals.
 
 The sampler is built on [BlackJAX](https://github.com/blackjax-devs/blackjax) with JAX as the computational backend, enabling GPU-accelerated inference across full (p, q) grids in a single run.
 
