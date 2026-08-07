@@ -2,7 +2,7 @@
   <img src="nestar_banner.png" alt="NestAR banner" width="100%">
 </p>
 
-# 🌀 NestAR — Nested Sampling Autoregressive Modelling
+
 
 > **Bayesian ARIMA model selection for astronomical time-series analysis using Nested Sampling.**
 
