@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="nestar_banner.png" alt="NestAR banner" width="100%">
+  <img src="nestar_logo.png" alt="NestAR banner" width="100%">
 </p>
 
 
